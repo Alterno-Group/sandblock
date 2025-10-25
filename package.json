@@ -1,0 +1,45 @@
+{
+  "name": "sandblock",
+  "version": "0.0.1",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "packages/hardhat",
+      "packages/frontend"
+    ]
+  },
+  "scripts": {
+    "account": "yarn workspace @sandblock/hardhat account",
+    "chain": "yarn workspace @sandblock/hardhat chain",
+    "fork": "yarn workspace @sandblock/hardhat fork",
+    "deploy": "yarn workspace @sandblock/hardhat deploy",
+    "verify": "yarn workspace @sandblock/hardhat verify",
+    "hardhat-verify": "yarn workspace @sandblock/hardhat hardhat-verify",
+    "compile": "yarn workspace @sandblock/hardhat compile",
+    "generate": "yarn workspace @sandblock/hardhat generate",
+    "flatten": "yarn workspace @sandblock/hardhat flatten",
+    "hardhat:lint": "yarn workspace @sandblock/hardhat lint",
+    "hardhat:lint-staged": "yarn workspace @sandblock/hardhat lint-staged",
+    "hardhat:format": "yarn workspace @sandblock/hardhat format",
+    "hardhat:test": "yarn workspace @sandblock/hardhat test",
+    "test": "yarn hardhat:test",
+    "format": "yarn frontend:format && yarn hardhat:format",
+    "start": "yarn workspace @sandblock/frontend dev",
+    "frontend:lint": "yarn workspace @sandblock/frontend lint",
+    "frontend:format": "yarn workspace @sandblock/frontend format",
+    "frontend:check-types": "yarn workspace @sandblock/frontend check-types",
+    "frontend:build": "yarn workspace @sandblock/frontend build",
+    "postinstall": "husky install",
+    "precommit": "lint-staged",
+    "vercel": "yarn workspace @sandblock/frontend vercel",
+    "vercel:yolo": "yarn workspace @sandblock/frontend vercel:yolo"
+  },
+  "packageManager": "yarn@3.2.3",
+  "devDependencies": {
+    "husky": "^8.0.1",
+    "lint-staged": "^13.0.3"
+  },
+  "dependencies": {
+    "tailwind-merge": "^2.4.0"
+  }
+}
