@@ -15,16 +15,16 @@ const deployContracts: DeployFunction = async function (hre: HardhatRuntimeEnvir
 
   console.log("MockUSDT deployed to:", mockUSDT.address);
 
-  // Deploy Energy Project Hub
-  const energyProjectHub = await deploy("EnergyProjectHub", {
+  // Deploy SandBlock
+  const sandBlock = await deploy("SandBlock", {
     from: deployer,
     args: [mockUSDT.address],
     log: true,
     autoMine: true,
   });
 
-  console.log("EnergyProjectHub deployed to:", energyProjectHub.address);
+  console.log("SandBlock deployed to:", sandBlock.address);
 };
 
 export default deployContracts;
-deployContracts.tags = ["MockUSDT", "EnergyProjectHub"];
+deployContracts.tags = ["MockUSDT", "SandBlock"];

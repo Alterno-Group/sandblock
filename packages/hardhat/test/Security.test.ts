@@ -1,11 +1,11 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { time } from "@nomicfoundation/hardhat-network-helpers";
-import { EnergyProjectHub, MockUSDT } from "../typechain-types";
+import { SandBlock, MockUSDT } from "../typechain-types";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 
 /**
- * Security Test Suite for EnergyProjectHub
+ * Security Test Suite for SandBlock
  *
  * This suite tests various attack vectors and unauthorized access attempts
  * to ensure no one can steal funds or manipulate the contract
@@ -25,8 +25,8 @@ function parseUSDT(amount: string): bigint {
   return ethers.parseUnits(amount, 6);
 }
 
-describe("Security Tests - EnergyProjectHub", function () {
-  let energyProjectHub: EnergyProjectHub;
+describe("Security Tests - SandBlock", function () {
+  let energyProjectHub: SandBlock;
   let mockUSDT: MockUSDT;
   let owner: HardhatEthersSigner;
   let projectOwner: HardhatEthersSigner;
@@ -40,8 +40,8 @@ describe("Security Tests - EnergyProjectHub", function () {
     const MockUSDT = await ethers.getContractFactory("MockUSDT");
     mockUSDT = await MockUSDT.deploy();
 
-    const EnergyProjectHub = await ethers.getContractFactory("EnergyProjectHub");
-    energyProjectHub = await EnergyProjectHub.deploy(await mockUSDT.getAddress());
+    const SandBlock = await ethers.getContractFactory("SandBlock");
+    energyProjectHub = await SandBlock.deploy(await mockUSDT.getAddress());
 
     // Setup: Create a funded project
     await energyProjectHub.connect(projectOwner).createProject(

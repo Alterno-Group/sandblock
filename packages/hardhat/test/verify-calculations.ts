@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { time } from "@nomicfoundation/hardhat-network-helpers";
-import { EnergyProjectHub, MockUSDT } from "../typechain-types";
+import { SandBlock, MockUSDT } from "../typechain-types";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 
 /**
@@ -28,7 +28,7 @@ function formatUSDT(amount: bigint): string {
 }
 
 describe("Manual Calculation Verification", function () {
-  let energyProjectHub: EnergyProjectHub;
+  let energyProjectHub: SandBlock;
   let mockUSDT: MockUSDT;
   let owner: HardhatEthersSigner;
   let projectOwner: HardhatEthersSigner;
@@ -42,8 +42,8 @@ describe("Manual Calculation Verification", function () {
     const MockUSDT = await ethers.getContractFactory("MockUSDT");
     mockUSDT = await MockUSDT.deploy();
 
-    const EnergyProjectHub = await ethers.getContractFactory("EnergyProjectHub");
-    energyProjectHub = await EnergyProjectHub.deploy(await mockUSDT.getAddress());
+    const SandBlock = await ethers.getContractFactory("SandBlock");
+    energyProjectHub = await SandBlock.deploy(await mockUSDT.getAddress());
 
     // Mint USDT to investors
     await mockUSDT.mint(investor1.address, parseUSDT("200000"));

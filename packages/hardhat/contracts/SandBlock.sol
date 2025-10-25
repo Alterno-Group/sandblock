@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
- * @title EnergyProjectHub
+ * @title SandBlock
  * @dev Manages tokenized energy projects with tiered interest rates and scheduled paybacks
  *
  * Interest Rates (APY):
@@ -18,7 +18,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
  * - Weekly interest payments after project completion
  * - Principal payback: 20% per year starting 2 years after target reached
  */
-contract EnergyProjectHub is Ownable, ReentrancyGuard {
+contract SandBlock is Ownable, ReentrancyGuard {
     IERC20 public usdtToken;
 
     // Admin management

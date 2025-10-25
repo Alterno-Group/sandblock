@@ -1,0 +1,10 @@
+WARNING: You are currently using Node.js v22.14.0, which is not supported by Hardhat. This can lead to unexpected behavior. See https://hardhat.org/nodejs-versions
+
+
+Error in plugin hardhat-deploy: 
+Unsupported network for JSON-RPC server. Only hardhat is currently supported.
+hardhat-deploy cannot run on the hardhat provider when defaultNetwork is not hardhat, see https://github.com/nomiclabs/hardhat/issues/1139 and https://github.com/wighawag/hardhat-deploy/issues/63
+you can specifiy hardhat via "--network hardhat"
+
+
+For more info run Hardhat with --show-stack-traces
