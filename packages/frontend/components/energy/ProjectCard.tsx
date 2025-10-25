@@ -1,5 +1,8 @@
 "use client";
 
+import { useState } from "react";
+import { ProjectDetailsModal } from "./ProjectDetailsModal";
+
 interface ProjectCardProps {
   projectId: number;
   name: string;
@@ -14,6 +17,8 @@ interface ProjectCardProps {
   isCompleted: boolean;
   isFailed: boolean;
   fundingDeadline: bigint;
+  contractAddress?: string;
+  createdAt?: bigint;
   onInvest: (projectId: number) => void;
 }
 
@@ -31,24 +36,14 @@ export const ProjectCard = ({
   isCompleted,
   isFailed,
   fundingDeadline,
+  contractAddress = "0x0000000000000000000000000000000000000000",
+  createdAt = 0n,
   onInvest,
 }: ProjectCardProps) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const fundingPercentage = targetAmount > 0n ? Number((totalInvested * 100n) / targetAmount) : 0;
-
-  const formatDeadline = (timestamp: bigint) => {
-    if (timestamp === 0n) return "No deadline";
-    const date = new Date(Number(timestamp) * 1000);
-    const now = new Date();
-    const diffTime = date.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays < 0) return "Expired";
-    if (diffDays === 0) return "Today";
-    if (diffDays === 1) return "1 day left";
-    if (diffDays <= 30) return `${diffDays} days left`;
-
-    return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-  };
+  const remainingAmount = targetAmount - totalInvested;
+  const isFundingComplete = remainingAmount <= 0n;
 
   const formatUSDT = (amount: bigint) => {
     // USDT has 6 decimals
@@ -90,9 +85,13 @@ export const ProjectCard = ({
   };
 
   return (
-    <div className="rounded-2xl border bg-[#1a1d29] border-gray-800 shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer flex flex-col h-full">
-      {/* Header */}
-      <div className="flex flex-col space-y-1 p-4 sm:p-5 pb-3">
+    <>
+      <div
+        className="rounded-2xl border bg-[#1a1d29] border-gray-800 shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer flex flex-col h-full"
+        onClick={() => setIsModalOpen(true)}
+      >
+        {/* Header */}
+        <div className="flex flex-col space-y-1 p-4 sm:p-5 pb-3">
         <div className="flex items-start justify-between gap-3 mb-1">
           <h3 className="font-semibold text-xl sm:text-2xl text-white line-clamp-2 flex-1">{name}</h3>
           <div className="flex gap-2 flex-shrink-0">
@@ -145,25 +144,6 @@ export const ProjectCard = ({
             <span className="text-gray-400">of ${formatUSDT(targetAmount)}</span>
           </div>
         </div>
-
-        {/* Token Symbol */}
-        <div className="flex items-center gap-2 text-sm">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4 text-gray-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <span className="font-mono text-gray-400 text-xs">SFC</span>
-        </div>
       </div>
 
       {/* Footer */}
@@ -173,12 +153,35 @@ export const ProjectCard = ({
             e.stopPropagation();
             onInvest(projectId);
           }}
-          disabled={!isActive || isCompleted || isFailed}
+          disabled={!isActive || isCompleted || isFailed || isFundingComplete}
           className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 sm:h-10 px-3 sm:px-4 py-2 w-full"
         >
-          {isFailed ? "Funding Failed" : isCompleted ? "Completed" : !isActive ? "Inactive" : "Invest Now"}
+          {isFailed ? "Funding Failed" : isCompleted ? "Completed" : !isActive ? "Inactive" : isFundingComplete ? "Fully Funded" : "Invest Now"}
         </button>
       </div>
     </div>
+
+    {/* Project Details Modal */}
+    <ProjectDetailsModal
+      isOpen={isModalOpen}
+      onClose={() => setIsModalOpen(false)}
+      projectId={projectId}
+      name={name}
+      description={description}
+      location={location}
+      projectType={projectType}
+      targetAmount={targetAmount}
+      totalInvested={totalInvested}
+      energyProduced={energyProduced}
+      projectOwner={projectOwner}
+      isActive={isActive}
+      isCompleted={isCompleted}
+      isFailed={isFailed}
+      fundingDeadline={fundingDeadline}
+      contractAddress={contractAddress}
+      createdAt={createdAt}
+      onInvest={onInvest}
+    />
+    </>
   );
 };

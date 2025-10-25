@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { ProjectCard } from "./ProjectCard";
 import { InvestmentModal } from "./InvestmentModal";
 import { useScaffoldContractRead } from "~~/hooks/scaffold-eth";
+import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
+import deployedContracts from "~~/contracts/deployedContracts";
 
 interface ProjectListProps {
   filter?: string;
@@ -16,7 +18,7 @@ export const ProjectList = ({ filter = "All" }: ProjectListProps) => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const { data: projectCount } = useScaffoldContractRead({
-    contractName: "EnergyProjectHub",
+    contractName: "SandBlock",
     functionName: "projectCount",
   });
 
@@ -51,7 +53,7 @@ export const ProjectList = ({ filter = "All" }: ProjectListProps) => {
 
       {allProjectIds.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-xl opacity-60">No projects yet. Create the first one!</p>
+          <p className="text-xl opacity-60">No projects yet.</p>
         </div>
       )}
 
@@ -119,17 +121,23 @@ const ProjectCardWrapper = ({
   onInvest: (id: number) => void;
   filter: string;
 }) => {
+  const { targetNetwork } = useTargetNetwork();
+
   const { data: projectData } = useScaffoldContractRead({
-    contractName: "EnergyProjectHub",
+    contractName: "SandBlock",
     functionName: "getProject",
     args: [BigInt(projectId)],
   });
 
   const { data: timelineData } = useScaffoldContractRead({
-    contractName: "EnergyProjectHub",
+    contractName: "SandBlock",
     functionName: "getProjectTimeline",
     args: [BigInt(projectId)],
   });
+
+  // Get contract address from deployedContracts
+  const networkContracts = targetNetwork.id ? deployedContracts[targetNetwork.id as keyof typeof deployedContracts] : undefined;
+  const contractAddress = networkContracts && 'SandBlock' in networkContracts ? (networkContracts.SandBlock as any).address : undefined;
 
   if (!projectData || !timelineData) {
     return (
@@ -160,8 +168,8 @@ const ProjectCardWrapper = ({
   const projectTypeNames = ["Solar", "Wind", "Hydro", "Thermal", "Geothermal", "Biomass", "Other"];
   const projectTypeName = projectTypeNames[Number(projectType)] || "Unknown";
 
-  // Extract funding deadline from timeline data
-  const [_createdAt, fundingDeadline] = timelineData;
+  // Extract funding deadline and created date from timeline data
+  const [createdAt, fundingDeadline] = timelineData;
 
   // Apply filter
   if (filter !== "All" && projectTypeName !== filter) {
@@ -183,6 +191,8 @@ const ProjectCardWrapper = ({
       isCompleted={isCompleted}
       isFailed={isFailed}
       fundingDeadline={fundingDeadline}
+      contractAddress={contractAddress}
+      createdAt={createdAt}
       onInvest={onInvest}
     />
   );

@@ -34,7 +34,7 @@ export const Header = () => {
           </Link>
 
           <div className="flex items-center gap-1 sm:gap-2">
-            <SwitchTheme className="hidden xs:flex" />
+            <SwitchTheme />
             <RainbowKitCustomConnectButton />
           </div>
         </div>

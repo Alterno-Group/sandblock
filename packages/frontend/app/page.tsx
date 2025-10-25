@@ -2,16 +2,87 @@
 
 import type { NextPage } from "next";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useAccount } from "wagmi";
 import { ProjectList } from "~~/components/energy/ProjectList";
 import { FaucetButton, USDTFaucetButton } from "~~/components/scaffold-eth";
+import { useScaffoldContractRead } from "~~/hooks/scaffold-eth";
+
+// Tooltip component
+const Tooltip = ({ children, text }: { children: React.ReactNode; text: string }) => {
+  const [show, setShow] = useState(false);
+
+  return (
+    <div className="relative inline-block">
+      <div
+        onMouseEnter={() => setShow(true)}
+        onMouseLeave={() => setShow(false)}
+        className="cursor-help"
+      >
+        {children}
+      </div>
+      {show && (
+        <div className="absolute z-50 px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-lg -top-12 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+          {text}
+          <div className="absolute w-2 h-2 bg-gray-900 transform rotate-45 -bottom-1 left-1/2 -translate-x-1/2"></div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Individual project stats fetcher
+const useProjectStats = (projectId: number, enabled: boolean) => {
+  const { data: projectData } = useScaffoldContractRead({
+    contractName: "SandBlock",
+    functionName: "getProject",
+    args: [BigInt(projectId)],
+    enabled: enabled,
+  });
+
+  if (!projectData) return null;
+
+  const [, , , , targetAmount, totalInvested, , , , isActive, isCompleted, isFailed] = projectData;
+  const remainingAmount = targetAmount - totalInvested;
+  const isFundingComplete = remainingAmount <= 0n;
+
+  return {
+    targetAmount: Number(targetAmount) / 1e6,
+    totalInvested: Number(totalInvested) / 1e6,
+    isActive: isActive && !isCompleted && !isFailed && !isFundingComplete,
+  };
+};
 
 const Home: NextPage = () => {
   const [activeFilter, setActiveFilter] = useState("All");
   const filters = ["All", "Solar", "Thermal", "Wind", "Hydro"];
-  const router = useRouter();
-  const { isConnected } = useAccount();
+
+  // Get project count
+  const { data: projectCount } = useScaffoldContractRead({
+    contractName: "SandBlock",
+    functionName: "projectCount",
+  });
+
+  const totalProjects = projectCount ? Number(projectCount) : 0;
+  const projectIds = totalProjects > 0 ? Array.from({ length: totalProjects }, (_, i) => i) : [];
+
+  // Fetch stats for projects that exist (only first 10 for performance)
+  // Always call hooks, but use enabled flag to control when they run
+  const project0 = useProjectStats(0, totalProjects > 0);
+  const project1 = useProjectStats(1, totalProjects > 1);
+  const project2 = useProjectStats(2, totalProjects > 2);
+  const project3 = useProjectStats(3, totalProjects > 3);
+  const project4 = useProjectStats(4, totalProjects > 4);
+  const project5 = useProjectStats(5, totalProjects > 5);
+  const project6 = useProjectStats(6, totalProjects > 6);
+  const project7 = useProjectStats(7, totalProjects > 7);
+  const project8 = useProjectStats(8, totalProjects > 8);
+  const project9 = useProjectStats(9, totalProjects > 9);
+
+  // Aggregate statistics
+  const allProjectStats = [project0, project1, project2, project3, project4, project5, project6, project7, project8, project9].filter(p => p !== null);
+
+  const totalRaised = allProjectStats.reduce((sum, p) => sum + (p?.totalInvested || 0), 0);
+  const totalGoal = allProjectStats.reduce((sum, p) => sum + (p?.targetAmount || 0), 0);
+  const activeProjects = allProjectStats.filter(p => p?.isActive).length;
 
   return (
     <div className="container mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8">
@@ -26,24 +97,6 @@ const Home: NextPage = () => {
             <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
               <FaucetButton />
               <USDTFaucetButton />
-              {isConnected && (
-                <button
-                  onClick={() => router.push("/owner")}
-                  className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 sm:h-10 px-3 sm:px-4 py-2"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4 sm:mr-2"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  <span className="hidden sm:inline">Add Project</span>
-                  <span className="sm:hidden text-xs">Add</span>
-                </button>
-              )}
             </div>
           </div>
 
@@ -68,7 +121,7 @@ const Home: NextPage = () => {
                   />
                 </svg>
               </div>
-              <div className="text-2xl sm:text-3xl font-bold mb-1 text-foreground">6</div>
+              <div className="text-2xl sm:text-3xl font-bold mb-1 text-foreground">{totalProjects}</div>
               <div className="text-muted-foreground text-xs sm:text-sm">Across all types</div>
             </div>
 
@@ -91,7 +144,7 @@ const Home: NextPage = () => {
                   />
                 </svg>
               </div>
-              <div className="text-2xl sm:text-3xl font-bold mb-1 text-foreground">4</div>
+              <div className="text-2xl sm:text-3xl font-bold mb-1 text-foreground">{activeProjects}</div>
               <div className="text-muted-foreground text-xs sm:text-sm">Currently accepting</div>
             </div>
 
@@ -114,7 +167,15 @@ const Home: NextPage = () => {
                   />
                 </svg>
               </div>
-              <div className="text-2xl sm:text-3xl font-bold mb-1 text-foreground">$34.2M</div>
+              <Tooltip text={`$${totalRaised.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}>
+                <div className="text-2xl sm:text-3xl font-bold mb-1 text-foreground">
+                  ${totalRaised >= 1000000
+                    ? `${(totalRaised / 1000000).toFixed(1)}M`
+                    : totalRaised >= 1000
+                    ? `${(totalRaised / 1000).toFixed(1)}K`
+                    : totalRaised.toFixed(2)}
+                </div>
+              </Tooltip>
               <div className="text-muted-foreground text-xs sm:text-sm">All projects</div>
             </div>
 
@@ -137,7 +198,15 @@ const Home: NextPage = () => {
                   />
                 </svg>
               </div>
-              <div className="text-2xl sm:text-3xl font-bold mb-1 text-foreground">$66.5M</div>
+              <Tooltip text={`$${totalGoal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}>
+                <div className="text-2xl sm:text-3xl font-bold mb-1 text-foreground">
+                  ${totalGoal >= 1000000
+                    ? `${(totalGoal / 1000000).toFixed(1)}M`
+                    : totalGoal >= 1000
+                    ? `${(totalGoal / 1000).toFixed(1)}K`
+                    : totalGoal.toFixed(2)}
+                </div>
+              </Tooltip>
               <div className="text-muted-foreground text-xs sm:text-sm">Funding targets</div>
             </div>
           </div>

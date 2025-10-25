@@ -53,7 +53,7 @@ SandBlock enables users to invest in tokenized renewable energy projects and ear
 
 ## Smart Contracts
 
-### EnergyProjectHub
+### SandBlock
 Main contract managing projects and investments.
 
 **Key Functions:**
@@ -65,9 +65,16 @@ Main contract managing projects and investments.
 - `recordEnergyProduction()` - Log energy with costs
 - `claimInterest()` - Claim weekly interest
 - `claimPrincipal()` - Claim annual principal
+- `addAdmin()` / `removeAdmin()` - Manage project administrators
 
 **Project Types:**
 - Solar ☀️, Wind 💨, Hydro 💧, Thermal 🔥, Geothermal 🌋, Biomass 🌿, Other ⚡
+
+**Features:**
+- Admin management system for multiple project managers
+- Project filtering by type and status
+- Automatic funding deadline tracking
+- Wallet connection protection for investor/owner pages
 
 ### MockUSDT
 ERC-20 token simulating USDT (6 decimals) for testing.
@@ -116,9 +123,10 @@ SandBlock/
 ├── packages/
 │   ├── hardhat/                    # Smart contracts
 │   │   ├── contracts/
-│   │   │   ├── EnergyProjectHub.sol
-│   │   │   └── MockUSDT.sol
-│   │   └── deploy/
+│   │   │   ├── SandBlock.sol      # Main platform contract
+│   │   │   └── MockUSDT.sol       # Test USDT token
+│   │   ├── deploy/
+│   │   └── test/
 │   └── frontend/                   # Next.js app
 │       ├── app/
 │       │   ├── page.tsx           # Project list

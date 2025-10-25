@@ -1,16 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAccount } from "wagmi";
 import { Address } from "~~/components/scaffold-eth";
 import { useScaffoldContractRead, useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
 
 export const InvestorDashboard = () => {
-  const { address } = useAccount();
+  const { address, isConnected } = useAccount();
+  const router = useRouter();
   const [selectedProject, setSelectedProject] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Wait a bit for wallet to connect, then redirect if not connected
+  useEffect(() => {
+    // Give wallet 1 second to auto-connect
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+      if (!isConnected) {
+        router.push("/");
+      }
+    }, 1000);
+
+    // If wallet connects quickly, stop loading immediately
+    if (isConnected) {
+      setIsLoading(false);
+      clearTimeout(timer);
+    }
+
+    return () => clearTimeout(timer);
+  }, [isConnected, router]);
 
   const { data: projectCount } = useScaffoldContractRead({
-    contractName: "EnergyProjectHub",
+    contractName: "SandBlock",
     functionName: "projectCount",
   });
 
@@ -19,6 +41,23 @@ export const InvestorDashboard = () => {
   };
 
   const projectIds = projectCount ? Array.from({ length: Number(projectCount) }, (_, i) => i) : [];
+
+  // Show loading while checking wallet connection
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <p className="mt-4 text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show nothing while redirecting
+  if (!isConnected) {
+    return null;
+  }
 
   return (
     <>
@@ -47,32 +86,33 @@ const InvestmentCard = ({
   investorAddress: string | undefined;
 }) => {
   const { data: projectData } = useScaffoldContractRead({
-    contractName: "EnergyProjectHub",
+    contractName: "SandBlock",
     functionName: "getProject",
     args: [BigInt(projectId)],
   });
 
   const { data: investmentData } = useScaffoldContractRead({
-    contractName: "EnergyProjectHub",
+    contractName: "SandBlock",
     functionName: "getInvestment",
-    args: [BigInt(projectId), investorAddress],
+    args: investorAddress ? [BigInt(projectId), investorAddress] : undefined,
+    enabled: !!investorAddress,
   });
 
   const { writeAsync: claimInterest, isMining: isClaimingInterest } = useScaffoldContractWrite({
-    contractName: "EnergyProjectHub",
+    contractName: "SandBlock",
     functionName: "claimInterest",
     args: [BigInt(projectId)],
   });
 
   const { writeAsync: claimPrincipal, isMining: isClaimingPrincipal } = useScaffoldContractWrite({
-    contractName: "EnergyProjectHub",
+    contractName: "SandBlock",
     functionName: "claimPrincipal",
     args: [BigInt(projectId)],
   });
 
   if (!projectData || !investmentData) return null;
 
-  const [name, , , , , , , , , isCompleted] = projectData;
+  const [name, , , , , , , , , , isCompleted] = projectData;
   const [
     principalAmount,
     principalRemaining,

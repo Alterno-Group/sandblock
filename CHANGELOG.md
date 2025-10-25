@@ -1,6 +1,43 @@
 # SandBlock - Change Log
 
-## What's New
+## Latest Updates (October 2024)
+
+### Version 2.1.0 - Contract Rename & Bug Fixes
+
+#### Contract Rename
+- ✅ **Renamed EnergyProjectHub.sol → SandBlock.sol**
+  - Updated contract name to match platform branding
+  - Updated all deployment scripts and configurations
+  - Updated all frontend references and type definitions
+  - Maintained all existing functionality and features
+
+#### Bug Fixes
+- 🐛 Fixed React hooks conditional rendering error
+  - Resolved "Rendered more hooks than during the previous render" error
+  - Updated useProjectStats to always call hooks with enabled flags
+- 🐛 Fixed ABI encoding errors
+  - Added proper `enabled` flags to all useScaffoldContractRead calls
+  - Fixed undefined args being passed to contract functions
+- 🐛 Fixed InvestorDashboard completion status
+  - Corrected array destructuring to properly read `isCompleted` field
+  - Fixed "Project construction is not completed yet" showing incorrectly
+- 🐛 Fixed homepage statistics fetching
+  - Added conditional project fetching to prevent calling non-existent projects
+- ✅ Re-enabled light/dark mode toggle button on all screen sizes
+
+#### UI/UX Improvements
+- Added project details modal with comprehensive project information
+- Added filters and sorting to owner dashboard (type, status, creation date)
+- Added tooltips showing exact values for statistics
+- Improved error handling and user feedback in investment modal
+- Enhanced weekly interest precision display (6 decimal places)
+- Added network-specific debug information display
+
+---
+
+## Version 2.0.0 - Complete Platform Rebuild
+
+### What's New
 
 This is a complete rebuild of the SandBlock platform, transforming it from a basic token/NFT practice project into a comprehensive **Tokenized Energy Investment Platform**.
 
@@ -9,12 +46,13 @@ This is a complete rebuild of the SandBlock platform, transforming it from a bas
 ### Smart Contracts
 
 #### New Contracts
-- **EnergyProjectHub.sol** - Main platform contract with:
+- **SandBlock.sol** (formerly EnergyProjectHub.sol) - Main platform contract with:
   - Project creation and management
   - Tiered interest rates (5%, 7%, 9% APY)
   - Weekly interest payments
   - Annual principal payback (20%/year starting 2 years after funding)
   - Energy production tracking with costs
+  - Admin management system
   - ReentrancyGuard security
 
 - **MockUSDT.sol** - Testing USDT token with:
@@ -158,6 +196,6 @@ Built with Scaffold-ETH 2 framework and powered by renewable energy! 🌞⚡
 
 ---
 
-**Version:** 2.0.0
+**Version:** 2.1.0
 **Date:** October 2024
 **License:** MIT

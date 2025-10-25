@@ -1,14 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useAccount } from "wagmi";
 import { parseUnits } from "viem";
 import { useScaffoldContractRead, useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
+import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 
 export const OwnerDashboard = () => {
-  const { address } = useAccount();
+  const { address, isConnected } = useAccount();
   const router = useRouter();
+  const { targetNetwork } = useTargetNetwork();
   const [newProjectName, setNewProjectName] = useState("");
   const [newProjectDescription, setNewProjectDescription] = useState("");
   const [newProjectLocation, setNewProjectLocation] = useState("");
@@ -19,18 +21,51 @@ export const OwnerDashboard = () => {
   const [newAdminAddress, setNewAdminAddress] = useState("");
   const [removeAdminAddress, setRemoveAdminAddress] = useState("");
   const [showAdminSection, setShowAdminSection] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [filterType, setFilterType] = useState("All");
+  const [filterStatus, setFilterStatus] = useState("All");
+  const [sortBy, setSortBy] = useState("newest");
 
   const projectTypes = ["Solar", "Wind", "Hydro", "Thermal", "Geothermal", "Biomass", "Other"];
+  const statusFilters = ["All", "Active", "Completed", "Failed", "Fully Funded"];
+  const sortOptions = [
+    { value: "newest", label: "Newest First" },
+    { value: "oldest", label: "Oldest First" },
+  ];
 
   const { data: projectCount } = useScaffoldContractRead({
-    contractName: "EnergyProjectHub",
+    contractName: "SandBlock",
     functionName: "projectCount",
   });
 
+  const { data: contractOwner } = useScaffoldContractRead({
+    contractName: "SandBlock",
+    functionName: "owner",
+  });
+
+  const { data: isCurrentUserAdmin } = useScaffoldContractRead({
+    contractName: "SandBlock",
+    functionName: "isAdmin",
+    args: [address as `0x${string}`],
+    enabled: !!address,
+  });
+
   const { writeAsync: createProject, isMining: isCreating } = useScaffoldContractWrite({
-    contractName: "EnergyProjectHub",
+    contractName: "SandBlock",
     functionName: "createProject",
     args: ["", "", "", 0, 0n, 0],
+  });
+
+  const { writeAsync: addAdmin, isMining: isAddingAdmin } = useScaffoldContractWrite({
+    contractName: "SandBlock",
+    functionName: "addAdmin",
+    args: ["0x0000000000000000000000000000000000000000"],
+  });
+
+  const { writeAsync: removeAdmin, isMining: isRemovingAdmin } = useScaffoldContractWrite({
+    contractName: "SandBlock",
+    functionName: "removeAdmin",
+    args: ["0x0000000000000000000000000000000000000000"],
   });
 
   const handleCreateProject = async () => {
@@ -60,28 +95,263 @@ export const OwnerDashboard = () => {
       setFundingDuration("90");
       setShowCreateForm(false);
 
-      // Redirect to homepage to see the new project
-      setTimeout(() => {
-        router.push("/");
-      }, 1000);
+      // Project list will automatically refresh due to useScaffoldContractRead watching for changes
     } catch (error) {
       console.error("Failed to create project:", error);
     }
   };
 
-  const projectIds = projectCount ? Array.from({ length: Number(projectCount) }, (_, i) => i) : [];
+  const handleAddAdmin = async () => {
+    if (!newAdminAddress) return;
+
+    try {
+      await addAdmin({
+        args: [newAdminAddress as `0x${string}`],
+      });
+      setNewAdminAddress("");
+    } catch (error) {
+      console.error("Failed to add admin:", error);
+    }
+  };
+
+  const handleRemoveAdmin = async () => {
+    if (!removeAdminAddress) return;
+
+    try {
+      await removeAdmin({
+        args: [removeAdminAddress as `0x${string}`],
+      });
+      setRemoveAdminAddress("");
+    } catch (error) {
+      console.error("Failed to remove admin:", error);
+    }
+  };
+
+  // Wait a bit for wallet to connect, then redirect if not connected
+  useEffect(() => {
+    // Give wallet 1 second to auto-connect
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+      if (!isConnected) {
+        router.push("/");
+      }
+    }, 1000);
+
+    // If wallet connects quickly, stop loading immediately
+    if (isConnected) {
+      setIsLoading(false);
+      clearTimeout(timer);
+    }
+
+    return () => clearTimeout(timer);
+  }, [isConnected, router]);
+
+  const isContractOwner = address && contractOwner && address.toLowerCase() === contractOwner.toLowerCase();
+  const isAuthorized = isContractOwner || isCurrentUserAdmin;
+
+  const projectIds = useMemo(() => {
+    if (!projectCount) return [];
+    const ids = Array.from({ length: Number(projectCount) }, (_, i) => i);
+    // Sort by creation order - newest projects have higher IDs
+    return sortBy === "newest" ? ids.reverse() : ids;
+  }, [projectCount, sortBy]);
+
+  // Debug logging
+  // console.log("OwnerDashboard Debug:", {
+  //   address,
+  //   contractOwner,
+  //   isContractOwner,
+  //   isCurrentUserAdmin,
+  //   isAuthorized,
+  //   isConnected,
+  //   isLoading,
+  // });
+
+  // Show loading while checking wallet connection and authorization
+  if (isLoading || (isConnected && contractOwner === undefined) || (isConnected && address && isCurrentUserAdmin === undefined)) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <p className="mt-4 text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect if not authorized (not owner and not admin)
+  if (!isAuthorized) {
+    router.push("/");
+    return null;
+  }
+
+  // Show nothing while redirecting
+  if (!isConnected) {
+    return null;
+  }
+
+  // Check if on local hardhat network
+  const isLocalNetwork = targetNetwork.id === 31337;
 
   return (
     <>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-foreground">My Projects</h1>
-        <button
-          className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-          onClick={() => setShowCreateForm(!showCreateForm)}
-        >
-          {showCreateForm ? "Cancel" : "Create New Project"}
-        </button>
+      {/* Debug Info - Only show on local hardhat network */}
+      {isLocalNetwork && (
+        <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3 mb-4 text-xs">
+          <div className="font-mono">
+            <div>Your Address: {address || "Not connected"}</div>
+            <div>Contract Owner: {contractOwner || "Loading..."}</div>
+            <div>Is Owner: {isContractOwner ? "✅ Yes" : "❌ No"}</div>
+            <div>Is Admin: {isCurrentUserAdmin ? "✅ Yes" : "❌ No"}</div>
+          </div>
+        </div>
+      )}
+
+      {/* Header with Filters and Action Buttons */}
+      <div className="mb-6">
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-3xl font-bold text-foreground">Projects</h1>
+          <div className="flex gap-2">
+            {isContractOwner && (
+              <button
+                className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+                onClick={() => setShowAdminSection(!showAdminSection)}
+              >
+                {showAdminSection ? "Hide Admin Panel" : "Manage Admins"}
+              </button>
+            )}
+            <button
+              className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+              onClick={() => setShowCreateForm(!showCreateForm)}
+            >
+              {showCreateForm ? "Cancel" : "Create New Project"}
+            </button>
+          </div>
+        </div>
+
+        {/* Filters */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+          {/* Type Filter */}
+          <div>
+            <label className="text-sm font-medium text-foreground mb-1.5 block">Project Type</label>
+            <select
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+            >
+              <option value="All">All Types</option>
+              {projectTypes.map((type) => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Status Filter */}
+          <div>
+            <label className="text-sm font-medium text-foreground mb-1.5 block">Status</label>
+            <select
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+            >
+              {statusFilters.map((status) => (
+                <option key={status} value={status}>{status}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Sort By */}
+          <div>
+            <label className="text-sm font-medium text-foreground mb-1.5 block">Sort By</label>
+            <select
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              {sortOptions.map((option) => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
       </div>
+
+      {/* Admin Management Section - Only visible to contract owner */}
+      {isContractOwner && showAdminSection && (
+        <div className="bg-card border border-card-border rounded-lg shadow-lg mb-8">
+          <div className="p-6">
+            <h2 className="text-2xl font-bold text-foreground mb-4">Admin Management</h2>
+            <p className="text-sm text-muted-foreground mb-6">
+              Admins can create and edit projects. Only the contract owner can add or remove admins.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Add Admin */}
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold text-foreground">Add Admin</h3>
+                <div>
+                  <label className="text-sm font-medium text-foreground mb-1.5 block">
+                    Admin Address
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="0x..."
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    value={newAdminAddress}
+                    onChange={(e) => setNewAdminAddress(e.target.value)}
+                  />
+                </div>
+                <button
+                  className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
+                  onClick={handleAddAdmin}
+                  disabled={isAddingAdmin || !newAdminAddress}
+                >
+                  {isAddingAdmin ? "Adding..." : "Add Admin"}
+                </button>
+              </div>
+
+              {/* Remove Admin */}
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold text-foreground">Remove Admin</h3>
+                <div>
+                  <label className="text-sm font-medium text-foreground mb-1.5 block">
+                    Admin Address
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="0x..."
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    value={removeAdminAddress}
+                    onChange={(e) => setRemoveAdminAddress(e.target.value)}
+                  />
+                </div>
+                <button
+                  className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-destructive text-destructive-foreground hover:bg-destructive/90 h-10 px-4 py-2 w-full"
+                  onClick={handleRemoveAdmin}
+                  disabled={isRemovingAdmin || !removeAdminAddress}
+                >
+                  {isRemovingAdmin ? "Removing..." : "Remove Admin"}
+                </button>
+              </div>
+            </div>
+
+            {/* Current User Status */}
+            <div className="mt-6 pt-6 border-t border-border">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-foreground">Your Status:</span>
+                <span className="inline-flex items-center rounded-md border px-2 py-1 text-xs font-semibold bg-primary/10 text-primary border-primary/20">
+                  Contract Owner
+                </span>
+                {isCurrentUserAdmin && (
+                  <span className="inline-flex items-center rounded-md border px-2 py-1 text-xs font-semibold bg-secondary/10 text-secondary-foreground border-secondary/20">
+                    Admin
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Create Project Form */}
       {showCreateForm && (
@@ -197,10 +467,18 @@ export const OwnerDashboard = () => {
         </div>
       )}
 
-      {/* Owned Projects */}
+      {/* Projects - Show all for owner/admin, or only owned for regular users */}
       <div className="space-y-6">
         {projectIds.map((id) => (
-          <OwnerProjectCard key={id} projectId={id} ownerAddress={address} />
+          <OwnerProjectCard
+            key={id}
+            projectId={id}
+            ownerAddress={address}
+            isContractOwner={isContractOwner}
+            isAdmin={isCurrentUserAdmin}
+            filterType={filterType}
+            filterStatus={filterStatus}
+          />
         ))}
       </div>
     </>
@@ -210,40 +488,48 @@ export const OwnerDashboard = () => {
 const OwnerProjectCard = ({
   projectId,
   ownerAddress,
+  isContractOwner,
+  isAdmin,
+  filterType,
+  filterStatus,
 }: {
   projectId: number;
   ownerAddress: string | undefined;
+  isContractOwner: boolean | "" | undefined;
+  isAdmin: boolean | undefined;
+  filterType: string;
+  filterStatus: string;
 }) => {
   const [energyAmount, setEnergyAmount] = useState("");
   const [energyCost, setEnergyCost] = useState("");
   const [energyNotes, setEnergyNotes] = useState("");
 
   const { data: projectData } = useScaffoldContractRead({
-    contractName: "EnergyProjectHub",
+    contractName: "SandBlock",
     functionName: "getProject",
     args: [BigInt(projectId)],
   });
 
   const { data: timelineData } = useScaffoldContractRead({
-    contractName: "EnergyProjectHub",
+    contractName: "SandBlock",
     functionName: "getProjectTimeline",
     args: [BigInt(projectId)],
   });
 
   const { data: investors } = useScaffoldContractRead({
-    contractName: "EnergyProjectHub",
+    contractName: "SandBlock",
     functionName: "getProjectInvestors",
     args: [BigInt(projectId)],
   });
 
   const { writeAsync: recordEnergy, isMining: isRecording } = useScaffoldContractWrite({
-    contractName: "EnergyProjectHub",
+    contractName: "SandBlock",
     functionName: "recordEnergyProduction",
     args: [BigInt(projectId), 0n, 0n, ""],
   });
 
   const { writeAsync: completeConstruction, isMining: isCompleting } = useScaffoldContractWrite({
-    contractName: "EnergyProjectHub",
+    contractName: "SandBlock",
     functionName: "completeConstruction",
     args: [BigInt(projectId)],
   });
@@ -255,7 +541,7 @@ const OwnerProjectCard = ({
     name,
     description,
     location,
-    _projectType,
+    projectType,
     targetAmount,
     totalInvested,
     energyProduced,
@@ -263,14 +549,34 @@ const OwnerProjectCard = ({
     projectOwner,
     isActive,
     isCompleted,
-    _isFailed,
+    isFailed,
   ] = projectData;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_createdAt, _fundingDeadline, fundingCompletedAt, _constructionCompletedAt] = timelineData;
 
-  // Skip if not owned by current user
-  if (projectOwner.toLowerCase() !== ownerAddress?.toLowerCase()) return null;
+  // Show all projects for contract owner and admins, otherwise only show owned projects
+  const canManageAllProjects = isContractOwner || isAdmin;
+  const isOwnedByCurrentUser = projectOwner.toLowerCase() === ownerAddress?.toLowerCase();
+
+  if (!canManageAllProjects && !isOwnedByCurrentUser) return null;
+
+  // Apply filters
+  const projectTypeNames = ["Solar", "Wind", "Hydro", "Thermal", "Geothermal", "Biomass", "Other"];
+  const projectTypeName = projectTypeNames[Number(projectType)] || "Unknown";
+  const remainingAmount = targetAmount - totalInvested;
+  const isFundingComplete = remainingAmount <= 0n;
+
+  // Filter by type
+  if (filterType !== "All" && projectTypeName !== filterType) return null;
+
+  // Filter by status
+  if (filterStatus !== "All") {
+    if (filterStatus === "Active" && !isActive) return null;
+    if (filterStatus === "Completed" && !isCompleted) return null;
+    if (filterStatus === "Failed" && !isFailed) return null;
+    if (filterStatus === "Fully Funded" && !isFundingComplete) return null;
+  }
 
   const formatUSDT = (amount: bigint) => {
     return (Number(amount) / 1e6).toFixed(2);
@@ -310,12 +616,24 @@ const OwnerProjectCard = ({
     <div className="bg-card border border-card-border rounded-lg shadow-lg">
       <div className="p-6">
         <div className="flex justify-between items-start mb-4">
-          <div>
-            <h2 className="text-2xl font-bold text-foreground">{name}</h2>
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <h2 className="text-2xl font-bold text-foreground">{name}</h2>
+              {!isOwnedByCurrentUser && canManageAllProjects && (
+                <span className="inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-semibold bg-blue-500/10 text-blue-500 border-blue-500/20">
+                  Managed by Admin
+                </span>
+              )}
+            </div>
             <p className="text-sm text-muted-foreground mt-1">{description}</p>
             <p className="text-sm text-muted-foreground mt-1">
               <span className="font-medium">Location:</span> {location}
             </p>
+            {!isOwnedByCurrentUser && canManageAllProjects && (
+              <p className="text-xs text-muted-foreground mt-1 font-mono">
+                <span className="font-medium">Owner:</span> {projectOwner.slice(0, 6)}...{projectOwner.slice(-4)}
+              </p>
+            )}
           </div>
           <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${isCompleted ? "bg-primary/10 text-primary" : isActive ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
             {isCompleted ? "Completed" : isActive ? "Active" : "Paused"}

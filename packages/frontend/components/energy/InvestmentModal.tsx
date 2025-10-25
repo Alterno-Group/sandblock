@@ -16,15 +16,17 @@ interface InvestmentModalProps {
 export const InvestmentModal = ({ projectId, isOpen, onClose }: InvestmentModalProps) => {
   const [investAmount, setInvestAmount] = useState("");
   const [mounted, setMounted] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const { address } = useAccount();
 
-  const { data: hubContractInfo } = useDeployedContractInfo("EnergyProjectHub");
+  const { data: hubContractInfo } = useDeployedContractInfo("SandBlock");
   const hubAddress = hubContractInfo?.address;
 
   useEffect(() => {
     setMounted(true);
     if (isOpen) {
       document.body.style.overflow = "hidden";
+      setErrorMessage(""); // Clear error when modal opens
     }
     return () => {
       document.body.style.overflow = "unset";
@@ -32,33 +34,34 @@ export const InvestmentModal = ({ projectId, isOpen, onClose }: InvestmentModalP
   }, [isOpen]);
 
   const { data: projectData } = useScaffoldContractRead({
-    contractName: "EnergyProjectHub",
+    contractName: "SandBlock",
     functionName: "getProject",
     args: projectId !== null ? [BigInt(projectId)] : undefined,
+    enabled: projectId !== null,
   });
 
   const { data: usdtBalance } = useScaffoldContractRead({
     contractName: "MockUSDT",
     functionName: "balanceOf",
     args: address ? [address] : undefined,
+    enabled: !!address,
   });
 
   const { data: allowance } = useScaffoldContractRead({
     contractName: "MockUSDT",
     functionName: "allowance",
     args: address && hubAddress ? [address, hubAddress] : undefined,
+    enabled: !!address && !!hubAddress,
   });
 
   const { writeAsync: approveUSDT, isMining: isApproving } = useScaffoldContractWrite({
     contractName: "MockUSDT",
     functionName: "approve",
-    args: [hubAddress || "0x0000000000000000000000000000000000000000", 0n],
   });
 
   const { writeAsync: invest, isMining: isInvesting } = useScaffoldContractWrite({
-    contractName: "EnergyProjectHub",
+    contractName: "SandBlock",
     functionName: "investInProject",
-    args: [0n, 0n],
   });
 
   const { writeAsync: getFaucet, isMining: isGettingFaucet } = useScaffoldContractWrite({
@@ -79,6 +82,8 @@ export const InvestmentModal = ({ projectId, isOpen, onClose }: InvestmentModalP
   const handleInvest = async () => {
     if (!investAmount || !projectData || projectId === null || !hubAddress) return;
 
+    setErrorMessage(""); // Clear any previous errors
+
     try {
       const amountInUSDT = parseUnits(investAmount, 6);
 
@@ -97,8 +102,40 @@ export const InvestmentModal = ({ projectId, isOpen, onClose }: InvestmentModalP
 
       setInvestAmount("");
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Investment failed:", error);
+
+      // Extract error message from the error object
+      let errorMsg = "Investment failed. Please try again.";
+
+      if (error?.message) {
+        // Check for common revert reasons
+        if (error.message.includes("Investment exceeds target amount")) {
+          errorMsg = "Investment amount exceeds the remaining target amount for this project.";
+        } else if (error.message.includes("Project is not active")) {
+          errorMsg = "This project is not currently accepting investments.";
+        } else if (error.message.includes("Project construction is completed")) {
+          errorMsg = "This project has already completed construction.";
+        } else if (error.message.includes("Project funding has failed")) {
+          errorMsg = "This project's funding has failed.";
+        } else if (error.message.includes("Funding deadline has passed")) {
+          errorMsg = "The funding deadline for this project has passed.";
+        } else if (error.message.includes("Investment amount must be greater than zero")) {
+          errorMsg = "Investment amount must be greater than zero.";
+        } else if (error.message.includes("User rejected") || error.message.includes("User denied")) {
+          errorMsg = "Transaction was cancelled.";
+        } else if (error.message.includes("insufficient funds")) {
+          errorMsg = "Insufficient funds in your wallet.";
+        } else {
+          // Try to extract any revert reason from the error message
+          const revertMatch = error.message.match(/reverted with the following reason:\s*(.+?)(?:\n|$)/);
+          if (revertMatch && revertMatch[1]) {
+            errorMsg = revertMatch[1].trim();
+          }
+        }
+      }
+
+      setErrorMessage(errorMsg);
     }
   };
 
@@ -112,10 +149,25 @@ export const InvestmentModal = ({ projectId, isOpen, onClose }: InvestmentModalP
 
   if (!isOpen || projectId === null || !projectData || !mounted) return null;
 
-  const [name, , , , targetAmount, totalInvested] = projectData;
+  const [name, , , , targetAmount, totalInvested, , , , isActive, isCompleted, isFailed] = projectData;
   const remainingAmount = targetAmount - totalInvested;
   const numInvestAmount = parseFloat(investAmount || "0");
   const interestRate = getInterestRate(numInvestAmount);
+
+  // Check if project can accept investments
+  const canInvest = isActive && !isCompleted && !isFailed && remainingAmount > 0n;
+
+  // Determine why investment is disabled
+  let disabledReason = "";
+  if (!isActive) {
+    disabledReason = "This project is not active.";
+  } else if (isCompleted) {
+    disabledReason = "This project has completed construction.";
+  } else if (isFailed) {
+    disabledReason = "This project's funding has failed.";
+  } else if (remainingAmount <= 0n) {
+    disabledReason = "This project has reached its funding goal.";
+  }
 
   const modalContent = (
     <div className="fixed top-0 left-0 right-0 bottom-0 z-[99999] flex items-end sm:items-center justify-center p-0 sm:p-4">
@@ -148,6 +200,31 @@ export const InvestmentModal = ({ projectId, isOpen, onClose }: InvestmentModalP
 
         {/* Content */}
         <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
+          {/* Warning if project can't accept investments */}
+          {!canInvest && disabledReason && (
+            <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3 sm:p-4">
+              <div className="flex items-start gap-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 text-yellow-500 flex-shrink-0 mt-0.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-yellow-500">{disabledReason}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Project Funding Status */}
           <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 rounded-lg p-3 sm:p-4">
             <h4 className="text-xs sm:text-sm font-semibold text-foreground mb-3">Funding Progress</h4>
@@ -219,6 +296,45 @@ export const InvestmentModal = ({ projectId, isOpen, onClose }: InvestmentModalP
               min="0"
               step="0.01"
             />
+
+            {/* Error Message */}
+            {errorMessage && (
+              <div className="mt-3 p-3 sm:p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+                <div className="flex items-start gap-2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-destructive">{errorMessage}</p>
+                  </div>
+                  <button
+                    onClick={() => setErrorMessage("")}
+                    className="text-destructive hover:text-destructive/80 flex-shrink-0"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Interest Rate Info */}
@@ -233,7 +349,7 @@ export const InvestmentModal = ({ projectId, isOpen, onClose }: InvestmentModalP
                 <div className="flex justify-between sm:block">
                   <span className="text-muted-foreground">Weekly Interest:</span>
                   <span className="sm:ml-2 font-bold text-foreground">
-                    ${((numInvestAmount * interestRate) / 100 / 52).toFixed(2)}
+                    ${((numInvestAmount * interestRate) / 100 / 52).toFixed(6)}
                   </span>
                 </div>
               </div>
@@ -263,10 +379,10 @@ export const InvestmentModal = ({ projectId, isOpen, onClose }: InvestmentModalP
           </button>
           <button
             onClick={handleInvest}
-            disabled={!investAmount || isInvesting || isApproving || numInvestAmount <= 0}
+            disabled={!canInvest || !investAmount || isInvesting || isApproving || numInvestAmount <= 0}
             className="inline-flex items-center justify-center rounded-md text-xs sm:text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 sm:h-10 px-3 sm:px-4 py-2 flex-1"
           >
-            {isApproving ? "Approving..." : isInvesting ? "Investing..." : "Invest"}
+            {!canInvest ? "Cannot Invest" : isApproving ? "Approving..." : isInvesting ? "Investing..." : "Invest"}
           </button>
         </div>
       </div>

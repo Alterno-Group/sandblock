@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { NetworkOptions } from "./NetworkOptions";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { getAddress } from "viem";
@@ -11,9 +12,11 @@ import {
   ChevronDownIcon,
   DocumentDuplicateIcon,
   QrCodeIcon,
+  CogIcon,
+  BanknotesIcon,
 } from "@heroicons/react/24/outline";
 import { BlockieAvatar, isENS } from "~~/components/scaffold-eth";
-import { useOutsideClick } from "~~/hooks/scaffold-eth";
+import { useOutsideClick, useScaffoldContractRead } from "~~/hooks/scaffold-eth";
 import { getTargetNetworks } from "~~/utils/scaffold-eth";
 
 const allowedNetworks = getTargetNetworks();
@@ -32,6 +35,7 @@ export const AddressInfoDropdown = ({
   blockExplorerAddressLink,
 }: AddressInfoDropdownProps) => {
   const { disconnect } = useDisconnect();
+  const router = useRouter();
   const checkSumAddress = getAddress(address);
 
   const [addressCopied, setAddressCopied] = useState(false);
@@ -43,6 +47,22 @@ export const AddressInfoDropdown = ({
     dropdownRef.current?.removeAttribute("open");
   };
   useOutsideClick(dropdownRef, closeDropdown);
+
+  // Check if user is contract owner or admin
+  const { data: contractOwner } = useScaffoldContractRead({
+    contractName: "SandBlock",
+    functionName: "owner",
+  });
+
+  const { data: isAdmin } = useScaffoldContractRead({
+    contractName: "SandBlock",
+    functionName: "isAdmin",
+    args: [address],
+    enabled: !!address,
+  });
+
+  const isContractOwner = address && contractOwner && address.toLowerCase() === contractOwner.toLowerCase();
+  const isAuthorized = isContractOwner || isAdmin;
 
   return (
     <>
@@ -103,6 +123,32 @@ export const AddressInfoDropdown = ({
               </a>
             </button>
           </li>
+          <li className={selectingNetwork ? "hidden" : ""}>
+            <button
+              className="w-full relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground"
+              type="button"
+              onClick={() => {
+                closeDropdown();
+                router.push("/investor");
+              }}
+            >
+              <BanknotesIcon className="h-4 w-4 mr-2" /> <span>My Investment</span>
+            </button>
+          </li>
+          {isAuthorized && (
+            <li className={selectingNetwork ? "hidden" : ""}>
+              <button
+                className="w-full relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground"
+                type="button"
+                onClick={() => {
+                  closeDropdown();
+                  router.push("/owner");
+                }}
+              >
+                <CogIcon className="h-4 w-4 mr-2" /> <span>Manage Projects</span>
+              </button>
+            </li>
+          )}
           {allowedNetworks.length > 1 ? (
             <li className={selectingNetwork ? "hidden" : ""}>
               <button
