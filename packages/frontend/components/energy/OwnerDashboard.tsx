@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAccount } from "wagmi";
+import { ProjectFinanceModal } from "./ProjectFinanceModal";
 import { parseUnits } from "viem";
+import { useAccount } from "wagmi";
 import { useScaffoldContractRead, useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 
@@ -53,7 +54,7 @@ export const OwnerDashboard = () => {
   const { writeAsync: createProject, isMining: isCreating } = useScaffoldContractWrite({
     contractName: "SandBlock",
     functionName: "createProject",
-    args: ["", "", "", 0, 0n, 0],
+    args: ["", "", "", 0, 0n, 0n],
   });
 
   const { writeAsync: addAdmin, isMining: isAddingAdmin } = useScaffoldContractWrite({
@@ -82,7 +83,7 @@ export const OwnerDashboard = () => {
           newProjectLocation,
           newProjectType,
           targetAmountUSDT,
-          durationDays,
+          BigInt(durationDays),
         ],
       });
 
@@ -168,7 +169,11 @@ export const OwnerDashboard = () => {
   // });
 
   // Show loading while checking wallet connection and authorization
-  if (isLoading || (isConnected && contractOwner === undefined) || (isConnected && address && isCurrentUserAdmin === undefined)) {
+  if (
+    isLoading ||
+    (isConnected && contractOwner === undefined) ||
+    (isConnected && address && isCurrentUserAdmin === undefined)
+  ) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
@@ -237,11 +242,13 @@ export const OwnerDashboard = () => {
             <select
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
+              onChange={e => setFilterType(e.target.value)}
             >
               <option value="All">All Types</option>
-              {projectTypes.map((type) => (
-                <option key={type} value={type}>{type}</option>
+              {projectTypes.map(type => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
               ))}
             </select>
           </div>
@@ -252,10 +259,12 @@ export const OwnerDashboard = () => {
             <select
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
+              onChange={e => setFilterStatus(e.target.value)}
             >
-              {statusFilters.map((status) => (
-                <option key={status} value={status}>{status}</option>
+              {statusFilters.map(status => (
+                <option key={status} value={status}>
+                  {status}
+                </option>
               ))}
             </select>
           </div>
@@ -266,10 +275,12 @@ export const OwnerDashboard = () => {
             <select
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
+              onChange={e => setSortBy(e.target.value)}
             >
-              {sortOptions.map((option) => (
-                <option key={option.value} value={option.value}>{option.label}</option>
+              {sortOptions.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
               ))}
             </select>
           </div>
@@ -290,15 +301,13 @@ export const OwnerDashboard = () => {
               <div className="space-y-3">
                 <h3 className="text-lg font-semibold text-foreground">Add Admin</h3>
                 <div>
-                  <label className="text-sm font-medium text-foreground mb-1.5 block">
-                    Admin Address
-                  </label>
+                  <label className="text-sm font-medium text-foreground mb-1.5 block">Admin Address</label>
                   <input
                     type="text"
                     placeholder="0x..."
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     value={newAdminAddress}
-                    onChange={(e) => setNewAdminAddress(e.target.value)}
+                    onChange={e => setNewAdminAddress(e.target.value)}
                   />
                 </div>
                 <button
@@ -314,15 +323,13 @@ export const OwnerDashboard = () => {
               <div className="space-y-3">
                 <h3 className="text-lg font-semibold text-foreground">Remove Admin</h3>
                 <div>
-                  <label className="text-sm font-medium text-foreground mb-1.5 block">
-                    Admin Address
-                  </label>
+                  <label className="text-sm font-medium text-foreground mb-1.5 block">Admin Address</label>
                   <input
                     type="text"
                     placeholder="0x..."
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     value={removeAdminAddress}
-                    onChange={(e) => setRemoveAdminAddress(e.target.value)}
+                    onChange={e => setRemoveAdminAddress(e.target.value)}
                   />
                 </div>
                 <button
@@ -361,52 +368,44 @@ export const OwnerDashboard = () => {
 
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-foreground mb-1.5 block">
-                  Project Name
-                </label>
+                <label className="text-sm font-medium text-foreground mb-1.5 block">Project Name</label>
                 <input
                   type="text"
                   placeholder="e.g., Solar Farm Project A"
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   value={newProjectName}
-                  onChange={(e) => setNewProjectName(e.target.value)}
+                  onChange={e => setNewProjectName(e.target.value)}
                 />
               </div>
 
               <div>
-                <label className="text-sm font-medium text-foreground mb-1.5 block">
-                  Description
-                </label>
+                <label className="text-sm font-medium text-foreground mb-1.5 block">Description</label>
                 <textarea
                   placeholder="Describe your energy project"
                   className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   rows={3}
                   value={newProjectDescription}
-                  onChange={(e) => setNewProjectDescription(e.target.value)}
+                  onChange={e => setNewProjectDescription(e.target.value)}
                 />
               </div>
 
               <div>
-                <label className="text-sm font-medium text-foreground mb-1.5 block">
-                  Location
-                </label>
+                <label className="text-sm font-medium text-foreground mb-1.5 block">Location</label>
                 <input
                   type="text"
                   placeholder="e.g., California, USA"
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   value={newProjectLocation}
-                  onChange={(e) => setNewProjectLocation(e.target.value)}
+                  onChange={e => setNewProjectLocation(e.target.value)}
                 />
               </div>
 
               <div>
-                <label className="text-sm font-medium text-foreground mb-1.5 block">
-                  Project Type
-                </label>
+                <label className="text-sm font-medium text-foreground mb-1.5 block">Project Type</label>
                 <select
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   value={newProjectType}
-                  onChange={(e) => setNewProjectType(Number(e.target.value))}
+                  onChange={e => setNewProjectType(Number(e.target.value))}
                 >
                   {projectTypes.map((type, index) => (
                     <option key={index} value={index}>
@@ -426,22 +425,20 @@ export const OwnerDashboard = () => {
                     placeholder="e.g., 100000"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     value={newProjectTarget}
-                    onChange={(e) => setNewProjectTarget(e.target.value)}
+                    onChange={e => setNewProjectTarget(e.target.value)}
                     min="0"
                     step="1000"
                   />
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-foreground mb-1.5 block">
-                    Funding Duration (Days)
-                  </label>
+                  <label className="text-sm font-medium text-foreground mb-1.5 block">Funding Duration (Days)</label>
                   <input
                     type="number"
                     placeholder="e.g., 90"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     value={fundingDuration}
-                    onChange={(e) => setFundingDuration(e.target.value)}
+                    onChange={e => setFundingDuration(e.target.value)}
                     min="1"
                     max="365"
                   />
@@ -451,7 +448,8 @@ export const OwnerDashboard = () => {
 
               <div className="bg-accent/50 border border-accent rounded-lg p-4">
                 <span className="text-sm text-accent-foreground">
-                  If funding target is not reached within {fundingDuration} days, all investments will be automatically refundable.
+                  If funding target is not reached within {fundingDuration} days, all investments will be automatically
+                  refundable.
                 </span>
               </div>
 
@@ -469,7 +467,7 @@ export const OwnerDashboard = () => {
 
       {/* Projects - Show all for owner/admin, or only owned for regular users */}
       <div className="space-y-6">
-        {projectIds.map((id) => (
+        {projectIds.map(id => (
           <OwnerProjectCard
             key={id}
             projectId={id}
@@ -503,6 +501,8 @@ const OwnerProjectCard = ({
   const [energyAmount, setEnergyAmount] = useState("");
   const [energyCost, setEnergyCost] = useState("");
   const [energyNotes, setEnergyNotes] = useState("");
+  const [showFinanceModal, setShowFinanceModal] = useState(false);
+  const [financeMode, setFinanceMode] = useState<"off-ramp" | "on-ramp">("off-ramp");
 
   const { data: projectData } = useScaffoldContractRead({
     contractName: "SandBlock",
@@ -608,9 +608,7 @@ const OwnerProjectCard = ({
     }
   };
 
-  const fundingPercentage = targetAmount > 0n
-    ? Number((totalInvested * 100n) / targetAmount)
-    : 0;
+  const fundingPercentage = targetAmount > 0n ? Number((totalInvested * 100n) / targetAmount) : 0;
 
   return (
     <div className="bg-card border border-card-border rounded-lg shadow-lg">
@@ -635,7 +633,15 @@ const OwnerProjectCard = ({
               </p>
             )}
           </div>
-          <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${isCompleted ? "bg-primary/10 text-primary" : isActive ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
+          <span
+            className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${
+              isCompleted
+                ? "bg-primary/10 text-primary"
+                : isActive
+                ? "bg-primary/10 text-primary"
+                : "bg-muted text-muted-foreground"
+            }`}
+          >
             {isCompleted ? "Completed" : isActive ? "Active" : "Paused"}
           </span>
         </div>
@@ -675,19 +681,74 @@ const OwnerProjectCard = ({
           </div>
         </div>
 
-        {/* Complete Construction Button */}
-        {fundingCompletedAt > 0n && !isCompleted && (
-          <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 mt-6">
-            <div className="flex justify-between items-center flex-wrap gap-4">
-              <span className="text-sm text-foreground">Funding completed! You can now mark construction as complete.</span>
-              <button
-                className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-3"
-                onClick={handleCompleteConstruction}
-                disabled={isCompleting}
-              >
-                {isCompleting ? "Completing..." : "Complete Construction"}
-              </button>
-            </div>
+        {/* Financial Management Section */}
+        {fundingCompletedAt > 0n && (
+          <div className="mt-6 space-y-3">
+            {/* Off-Ramp: Withdraw funds for construction */}
+            {!isCompleted && (
+              <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-4">
+                <div className="flex justify-between items-center flex-wrap gap-4">
+                  <div>
+                    <span className="text-sm font-semibold text-foreground block">
+                      💸 Withdraw Funds for Construction
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      Convert USDT → Fiat to pay contractors and suppliers
+                    </span>
+                  </div>
+                  <button
+                    className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring bg-orange-500 text-white hover:bg-orange-600 h-9 px-3"
+                    onClick={() => {
+                      setFinanceMode("off-ramp");
+                      setShowFinanceModal(true);
+                    }}
+                  >
+                    Withdraw Funds
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Complete Construction Button */}
+            {!isCompleted && (
+              <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
+                <div className="flex justify-between items-center flex-wrap gap-4">
+                  <span className="text-sm text-foreground">
+                    Funding completed! You can now mark construction as complete.
+                  </span>
+                  <button
+                    className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-3"
+                    onClick={handleCompleteConstruction}
+                    disabled={isCompleting}
+                  >
+                    {isCompleting ? "Completing..." : "Complete Construction"}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* On-Ramp: Deposit energy revenue */}
+            {isCompleted && (
+              <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4">
+                <div className="flex justify-between items-center flex-wrap gap-4">
+                  <div>
+                    <span className="text-sm font-semibold text-foreground block">💰 Deposit Energy Revenue</span>
+                    <span className="text-xs text-muted-foreground">
+                      Convert energy sales revenue (Fiat → USDT) to pay investors
+                    </span>
+                  </div>
+                  <button
+                    className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring bg-green-500 text-white hover:bg-green-600 h-9 px-3"
+                    onClick={() => {
+                      setFinanceMode("on-ramp");
+                      setShowFinanceModal(true);
+                    }}
+                  >
+                    Deposit Revenue
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -705,44 +766,38 @@ const OwnerProjectCard = ({
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="text-sm font-medium text-foreground mb-1.5 block">
-                  Energy (kWh)
-                </label>
+                <label className="text-sm font-medium text-foreground mb-1.5 block">Energy (kWh)</label>
                 <input
                   type="number"
                   placeholder="e.g., 1000"
                   className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   value={energyAmount}
-                  onChange={(e) => setEnergyAmount(e.target.value)}
+                  onChange={e => setEnergyAmount(e.target.value)}
                   min="0"
                 />
               </div>
 
               <div>
-                <label className="text-sm font-medium text-foreground mb-1.5 block">
-                  Cost (USDT) - Optional
-                </label>
+                <label className="text-sm font-medium text-foreground mb-1.5 block">Cost (USDT) - Optional</label>
                 <input
                   type="number"
                   placeholder="e.g., 100"
                   className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   value={energyCost}
-                  onChange={(e) => setEnergyCost(e.target.value)}
+                  onChange={e => setEnergyCost(e.target.value)}
                   min="0"
                   step="0.01"
                 />
               </div>
 
               <div>
-                <label className="text-sm font-medium text-foreground mb-1.5 block">
-                  Notes - Optional
-                </label>
+                <label className="text-sm font-medium text-foreground mb-1.5 block">Notes - Optional</label>
                 <input
                   type="text"
                   placeholder="e.g., Monthly production"
                   className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   value={energyNotes}
-                  onChange={(e) => setEnergyNotes(e.target.value)}
+                  onChange={e => setEnergyNotes(e.target.value)}
                 />
               </div>
             </div>
@@ -757,6 +812,16 @@ const OwnerProjectCard = ({
           </div>
         )}
       </div>
+
+      {/* Project Finance Modal */}
+      <ProjectFinanceModal
+        isOpen={showFinanceModal}
+        onClose={() => setShowFinanceModal(false)}
+        projectId={projectId}
+        projectName={name}
+        totalFunding={totalInvested}
+        mode={financeMode}
+      />
     </div>
   );
 };

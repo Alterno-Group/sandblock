@@ -8,12 +8,12 @@ import {
   ArrowLeftOnRectangleIcon,
   ArrowTopRightOnSquareIcon,
   ArrowsRightLeftIcon,
+  BanknotesIcon,
   CheckCircleIcon,
   ChevronDownIcon,
+  CogIcon,
   DocumentDuplicateIcon,
   QrCodeIcon,
-  CogIcon,
-  BanknotesIcon,
 } from "@heroicons/react/24/outline";
 import { BlockieAvatar, isENS } from "~~/components/scaffold-eth";
 import { useOutsideClick, useScaffoldContractRead } from "~~/hooks/scaffold-eth";
@@ -67,7 +67,10 @@ export const AddressInfoDropdown = ({
   return (
     <>
       <details ref={dropdownRef} className="relative leading-3">
-        <summary tabIndex={0} className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring bg-card border border-card-border hover:bg-accent hover:text-accent-foreground h-10 px-3 cursor-pointer list-none">
+        <summary
+          tabIndex={0}
+          className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring bg-card border border-card-border hover:bg-accent hover:text-accent-foreground h-10 px-3 cursor-pointer list-none"
+        >
           <div className="hidden lg:flex w-5">
             <BlockieAvatar address={checkSumAddress} size={30} ensImage={ensAvatar} />
           </div>
@@ -105,13 +108,19 @@ export const AddressInfoDropdown = ({
             )}
           </li>
           <li className={selectingNetwork ? "hidden" : ""}>
-            <label htmlFor="qrcode-modal" className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground">
+            <label
+              htmlFor="qrcode-modal"
+              className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground"
+            >
               <QrCodeIcon className="h-4 w-4 mr-2" />
               <span className="whitespace-nowrap">View QR Code</span>
             </label>
           </li>
           <li className={selectingNetwork ? "hidden" : ""}>
-            <button className="w-full relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground" type="button">
+            <button
+              className="w-full relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground"
+              type="button"
+            >
               <ArrowTopRightOnSquareIcon className="h-4 w-4 mr-2" />
               <a
                 target="_blank"

@@ -1,5 +1,3 @@
-import React from "react";
-
 /**
  * Site footer - Minimal or hidden
  */

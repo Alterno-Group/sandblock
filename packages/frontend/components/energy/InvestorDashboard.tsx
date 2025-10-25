@@ -1,15 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAccount } from "wagmi";
-import { Address } from "~~/components/scaffold-eth";
 import { useScaffoldContractRead, useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
 
 export const InvestorDashboard = () => {
   const { address, isConnected } = useAccount();
   const router = useRouter();
-  const [selectedProject, setSelectedProject] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
 
   // Wait a bit for wallet to connect, then redirect if not connected
@@ -36,10 +34,6 @@ export const InvestorDashboard = () => {
     functionName: "projectCount",
   });
 
-  const formatUSDT = (amount: bigint) => {
-    return (Number(amount) / 1e6).toFixed(2);
-  };
-
   const projectIds = projectCount ? Array.from({ length: Number(projectCount) }, (_, i) => i) : [];
 
   // Show loading while checking wallet connection
@@ -64,7 +58,7 @@ export const InvestorDashboard = () => {
       <h1 className="text-3xl font-bold mb-6 text-foreground">My Investments</h1>
 
       <div className="space-y-6">
-        {projectIds.map((id) => (
+        {projectIds.map(id => (
           <InvestmentCard key={id} projectId={id} investorAddress={address} />
         ))}
 
@@ -78,13 +72,7 @@ export const InvestorDashboard = () => {
   );
 };
 
-const InvestmentCard = ({
-  projectId,
-  investorAddress,
-}: {
-  projectId: number;
-  investorAddress: string | undefined;
-}) => {
+const InvestmentCard = ({ projectId, investorAddress }: { projectId: number; investorAddress: string | undefined }) => {
   const { data: projectData } = useScaffoldContractRead({
     contractName: "SandBlock",
     functionName: "getProject",
@@ -94,7 +82,7 @@ const InvestmentCard = ({
   const { data: investmentData } = useScaffoldContractRead({
     contractName: "SandBlock",
     functionName: "getInvestment",
-    args: investorAddress ? [BigInt(projectId), investorAddress] : undefined,
+    args: [BigInt(projectId), investorAddress],
     enabled: !!investorAddress,
   });
 
@@ -151,7 +139,11 @@ const InvestmentCard = ({
       <div className="p-6">
         <div className="flex justify-between items-start mb-4">
           <h2 className="text-2xl font-bold text-foreground">{name}</h2>
-          <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${isCompleted ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
+          <span
+            className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${
+              isCompleted ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+            }`}
+          >
             {isCompleted ? "Producing" : "In Progress"}
           </span>
         </div>
@@ -161,26 +153,20 @@ const InvestmentCard = ({
           <div className="bg-muted rounded-lg p-4">
             <div className="text-xs text-muted-foreground mb-1">Original Investment</div>
             <div className="text-2xl font-bold text-foreground">${formatUSDT(principalAmount)}</div>
-            <div className="text-xs text-muted-foreground mt-1">
-              Interest Rate: {Number(interestRate) / 100}% APY
-            </div>
+            <div className="text-xs text-muted-foreground mt-1">Interest Rate: {Number(interestRate) / 100}% APY</div>
           </div>
 
           {/* Principal Remaining */}
           <div className="bg-muted rounded-lg p-4">
             <div className="text-xs text-muted-foreground mb-1">Principal Remaining</div>
             <div className="text-2xl font-bold text-foreground">${formatUSDT(principalRemaining)}</div>
-            <div className="text-xs text-muted-foreground mt-1">
-              Returned: ${formatUSDT(totalPrincipalClaimed)}
-            </div>
+            <div className="text-xs text-muted-foreground mt-1">Returned: ${formatUSDT(totalPrincipalClaimed)}</div>
           </div>
 
           {/* Total Interest Earned */}
           <div className="bg-muted rounded-lg p-4">
             <div className="text-xs text-muted-foreground mb-1">Interest Earned</div>
-            <div className="text-2xl font-bold text-primary">
-              ${formatUSDT(totalInterestClaimed)}
-            </div>
+            <div className="text-2xl font-bold text-primary">${formatUSDT(totalInterestClaimed)}</div>
             <div className="text-xs text-muted-foreground mt-1">Total claimed so far</div>
           </div>
         </div>
@@ -203,9 +189,7 @@ const InvestmentCard = ({
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="text-sm text-muted-foreground">Weekly Interest</p>
-                    <p className="text-2xl font-bold text-primary">
-                      ${formatUSDT(availableInterest)}
-                    </p>
+                    <p className="text-2xl font-bold text-primary">${formatUSDT(availableInterest)}</p>
                   </div>
                   <button
                     className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
@@ -222,9 +206,7 @@ const InvestmentCard = ({
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="text-sm text-muted-foreground">Principal Payback</p>
-                    <p className="text-2xl font-bold text-primary">
-                      ${formatUSDT(availablePrincipal)}
-                    </p>
+                    <p className="text-2xl font-bold text-primary">${formatUSDT(availablePrincipal)}</p>
                   </div>
                   <button
                     className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
@@ -240,8 +222,8 @@ const InvestmentCard = ({
             {availableInterest === 0n && availablePrincipal === 0n && (
               <div className="bg-accent/50 border border-accent rounded-lg p-4">
                 <span className="text-sm text-accent-foreground">
-                  No funds available to claim yet. Interest is paid weekly, principal starts 2 years
-                  after funding completion.
+                  No funds available to claim yet. Interest is paid weekly, principal starts 2 years after funding
+                  completion.
                 </span>
               </div>
             )}
@@ -250,7 +232,9 @@ const InvestmentCard = ({
 
         {!isCompleted && (
           <div className="bg-muted border border-border rounded-lg p-4 mt-4">
-            <span className="text-sm text-foreground">Project construction is not completed yet. Returns will be available after completion.</span>
+            <span className="text-sm text-foreground">
+              Project construction is not completed yet. Returns will be available after completion.
+            </span>
           </div>
         )}
       </div>

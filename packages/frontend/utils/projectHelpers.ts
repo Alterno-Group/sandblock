@@ -13,13 +13,13 @@ export const getProjectTypeEmoji = (typeIndex: number): string => {
 
 export const getProjectTypeColor = (typeIndex: number): string => {
   const colors = [
-    "badge-warning",   // Solar - yellow
-    "badge-info",      // Wind - blue
-    "badge-primary",   // Hydro - blue
-    "badge-error",     // Thermal - red
-    "badge-accent",    // Geothermal - purple
-    "badge-success",   // Biomass - green
-    "badge-neutral",   // Other - gray
+    "badge-warning", // Solar - yellow
+    "badge-info", // Wind - blue
+    "badge-primary", // Hydro - blue
+    "badge-error", // Thermal - red
+    "badge-accent", // Geothermal - purple
+    "badge-success", // Biomass - green
+    "badge-neutral", // Other - gray
   ];
   return colors[typeIndex] || "badge-neutral";
 };
@@ -37,11 +37,11 @@ export const formatTimeRemaining = (deadline: bigint): string => {
   const hours = Math.floor((remaining % 86400) / 3600);
 
   if (days > 0) {
-    return `${days} day${days > 1 ? 's' : ''} ${hours}h remaining`;
+    return `${days} day${days > 1 ? "s" : ""} ${hours}h remaining`;
   } else if (hours > 0) {
-    return `${hours} hour${hours > 1 ? 's' : ''} remaining`;
+    return `${hours} hour${hours > 1 ? "s" : ""} remaining`;
   } else {
     const minutes = Math.floor(remaining / 60);
-    return `${minutes} minute${minutes > 1 ? 's' : ''} remaining`;
+    return `${minutes} minute${minutes > 1 ? "s" : ""} remaining`;
   }
 };

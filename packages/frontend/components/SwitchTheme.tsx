@@ -30,11 +30,7 @@ export const SwitchTheme = ({ className }: { className?: string }) => {
       className={`inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10 ${className}`}
       aria-label="Toggle theme"
     >
-      {isDarkMode ? (
-        <SunIcon className="h-5 w-5" />
-      ) : (
-        <MoonIcon className="h-5 w-5" />
-      )}
+      {isDarkMode ? <SunIcon className="h-5 w-5" /> : <MoonIcon className="h-5 w-5" />}
     </button>
   );
 };

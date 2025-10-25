@@ -1,9 +1,9 @@
+import { Inter } from "next/font/google";
 import "@rainbow-me/rainbowkit/styles.css";
 import { Metadata } from "next";
 import { ScaffoldEthAppWithProviders } from "~~/components/ScaffoldEthAppWithProviders";
 import { ThemeProvider } from "~~/components/ThemeProvider";
 import "~~/styles/globals.css";
-import { Inter } from "next/font/google";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/favicon.ico", sizes: "32x32", type: "image/x-icon" }
+      { url: "/favicon.ico", sizes: "32x32", type: "image/x-icon" },
     ],
   },
 };

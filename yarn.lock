@@ -1775,12 +1775,14 @@ __metadata:
     "@types/nprogress": ^0
     "@types/react": ^18.0.9
     "@types/react-copy-to-clipboard": ^5.0.4
+    "@types/react-dom": ^19.2.2
     "@typescript-eslint/eslint-plugin": ^5.39.0
     "@uniswap/sdk-core": ^4.0.1
     "@uniswap/v2-sdk": ^3.0.1
     autoprefixer: ^10.4.12
     blo: ^1.0.1
     daisyui: 4.5.0
+    date-fns: ^4.1.0
     eslint: ^8.15.0
     eslint-config-next: ^14.0.4
     eslint-config-prettier: ^8.5.0
@@ -2645,6 +2647,15 @@ __metadata:
   dependencies:
     "@types/react": "*"
   checksum: 48e356652c7c70394ef14a6f3dcec524a02fddabd892a9728083301c7f49bf5fd590215a0c0cad9812953af8fa23ab5813d9ad3a1b0ddd82b70ff000e7aa8a30
+  languageName: node
+  linkType: hard
+
+"@types/react-dom@npm:^19.2.2":
+  version: 19.2.2
+  resolution: "@types/react-dom@npm:19.2.2"
+  peerDependencies:
+    "@types/react": ^19.2.0
+  checksum: a9e16d59f89b2794a3b062766de2eedf98cf66e59de7560de5beb95fb8742161b2dc4751530380c38d51320bc99b8a1d66fa113cee9b5d0f138ef6fb49fb4ce9
   languageName: node
   linkType: hard
 
@@ -5576,6 +5587,13 @@ __metadata:
   dependencies:
     assert-plus: ^1.0.0
   checksum: 3634c249570f7f34e3d34f866c93f866c5b417f0dd616275decae08147dcdf8fccfaa5947380ccfb0473998ea3a8057c0b4cd90c875740ee685d0624b2983598
+  languageName: node
+  linkType: hard
+
+"date-fns@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "date-fns@npm:4.1.0"
+  checksum: fb681b242cccabed45494468f64282a7d375ea970e0adbcc5dcc92dcb7aba49b2081c2c9739d41bf71ce89ed68dd73bebfe06ca35129490704775d091895710b
   languageName: node
   linkType: hard
 

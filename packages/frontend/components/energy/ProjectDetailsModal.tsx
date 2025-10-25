@@ -1,7 +1,8 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { FinancialTransparency } from "./FinancialTransparency";
 import { createPortal } from "react-dom";
-import { useEffect } from "react";
 
 interface ProjectDetailsModalProps {
   isOpen: boolean;
@@ -44,9 +45,12 @@ export const ProjectDetailsModal = ({
   createdAt,
   onInvest,
 }: ProjectDetailsModalProps) => {
+  const [activeTab, setActiveTab] = useState<"details" | "transparency">("details");
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
+      setActiveTab("details"); // Reset to details tab when opening
     } else {
       document.body.style.overflow = "unset";
     }
@@ -119,7 +123,7 @@ export const ProjectDetailsModal = ({
     >
       <div
         className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border bg-[#1a1d29] border-gray-800 shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
+        onClick={e => e.stopPropagation()}
       >
         {/* Close button */}
         <button
@@ -146,7 +150,9 @@ export const ProjectDetailsModal = ({
               <h2 className="font-bold text-2xl sm:text-3xl text-white flex-1">{name}</h2>
               <div className="flex gap-2 flex-shrink-0">
                 <span
-                  className={`inline-flex items-center rounded-md border px-2.5 py-1 text-xs font-semibold ${getProjectTypeColor(projectType)}`}
+                  className={`inline-flex items-center rounded-md border px-2.5 py-1 text-xs font-semibold ${getProjectTypeColor(
+                    projectType,
+                  )}`}
                 >
                   {projectType}
                 </span>
@@ -172,7 +178,12 @@ export const ProjectDetailsModal = ({
                   strokeWidth={2}
                   d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
                 />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                />
               </svg>
               <span>{location}</span>
             </div>
@@ -180,152 +191,183 @@ export const ProjectDetailsModal = ({
             <p className="text-gray-300 leading-relaxed">{description}</p>
           </div>
 
-          {/* Funding Progress */}
-          <div className="mb-6 p-5 rounded-xl bg-gray-900/50 border border-gray-800">
-            <h3 className="text-sm font-semibold text-gray-400 mb-4">Funding Progress</h3>
-
-            {/* Three column stats */}
-            <div className="grid grid-cols-3 gap-4 mb-4">
-              <div>
-                <div className="text-xs text-gray-500 mb-1">Goal</div>
-                <div className="text-lg font-bold text-white">${formatUSDT(targetAmount)}</div>
-              </div>
-              <div>
-                <div className="text-xs text-gray-500 mb-1">Raised</div>
-                <div className="text-lg font-bold text-primary">${formatUSDT(totalInvested)}</div>
-              </div>
-              <div>
-                <div className="text-xs text-gray-500 mb-1">Remaining</div>
-                <div className="text-lg font-bold text-green-500">${formatUSDT(remaining)}</div>
-              </div>
-            </div>
-
-            {/* Progress bar */}
-            <div className="space-y-2">
-              <div className="relative h-3 w-full overflow-hidden rounded-full bg-gray-800">
-                <div
-                  className="h-full bg-gradient-to-r from-green-500 to-green-400 transition-all rounded-full"
-                  style={{ width: `${Math.min(fundingPercentage, 100)}%` }}
-                />
-              </div>
-              <div className="text-center text-sm font-bold text-white">{fundingPercentage.toFixed(1)}%</div>
-            </div>
+          {/* Tabs */}
+          <div className="flex gap-2 border-b border-gray-800 mb-6">
+            <button
+              onClick={() => setActiveTab("details")}
+              className={`px-4 py-2 font-medium border-b-2 transition-colors ${
+                activeTab === "details"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-gray-400 hover:text-white"
+              }`}
+            >
+              📋 Details
+            </button>
+            <button
+              onClick={() => setActiveTab("transparency")}
+              className={`px-4 py-2 font-medium border-b-2 transition-colors ${
+                activeTab === "transparency"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-gray-400 hover:text-white"
+              }`}
+            >
+              💎 Transparency
+            </button>
           </div>
 
-          {/* Additional Information */}
-          <div className="space-y-4 mb-6">
-            {/* Contract Address */}
-            <div className="flex items-start gap-3 p-4 rounded-lg bg-gray-900/30 border border-gray-800">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 text-gray-400 flex-shrink-0 mt-0.5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                />
-              </svg>
-              <div className="flex-1 min-w-0">
-                <div className="text-xs text-gray-500 mb-1">Contract Address</div>
-                <div className="text-sm font-mono text-gray-300 break-all">{contractAddress}</div>
-              </div>
-            </div>
+          {/* Details Tab */}
+          {activeTab === "details" && (
+            <div>
+              {/* Funding Progress */}
+              <div className="mb-6 p-5 rounded-xl bg-gray-900/50 border border-gray-800">
+                <h3 className="text-sm font-semibold text-gray-400 mb-4">Funding Progress</h3>
 
-            {/* Created Date */}
-            <div className="flex items-start gap-3 p-4 rounded-lg bg-gray-900/30 border border-gray-800">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 text-gray-400 flex-shrink-0 mt-0.5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                />
-              </svg>
-              <div className="flex-1">
-                <div className="text-xs text-gray-500 mb-1">Created</div>
-                <div className="text-sm text-gray-300">{formatDate(createdAt)}</div>
-              </div>
-            </div>
+                {/* Three column stats */}
+                <div className="grid grid-cols-3 gap-4 mb-4">
+                  <div>
+                    <div className="text-xs text-gray-500 mb-1">Goal</div>
+                    <div className="text-lg font-bold text-white">${formatUSDT(targetAmount)}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-500 mb-1">Raised</div>
+                    <div className="text-lg font-bold text-primary">${formatUSDT(totalInvested)}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-500 mb-1">Remaining</div>
+                    <div className="text-lg font-bold text-green-500">${formatUSDT(remaining)}</div>
+                  </div>
+                </div>
 
-            {/* Energy Produced */}
-            <div className="flex items-start gap-3 p-4 rounded-lg bg-gray-900/30 border border-gray-800">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 text-gray-400 flex-shrink-0 mt-0.5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
-                />
-              </svg>
-              <div className="flex-1">
-                <div className="text-xs text-gray-500 mb-1">Energy Produced</div>
-                <div className="text-sm text-gray-300">{energyProduced.toString()} kWh</div>
-              </div>
-            </div>
-
-            {/* Project Owner */}
-            <div className="flex items-start gap-3 p-4 rounded-lg bg-gray-900/30 border border-gray-800">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 text-gray-400 flex-shrink-0 mt-0.5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                />
-              </svg>
-              <div className="flex-1 min-w-0">
-                <div className="text-xs text-gray-500 mb-1">Project Owner</div>
-                <div className="text-sm font-mono text-gray-300 break-all">{projectOwner}</div>
-              </div>
-            </div>
-
-            {/* Funding Deadline */}
-            {fundingDeadline > 0n && (
-              <div className="flex items-start gap-3 p-4 rounded-lg bg-gray-900/30 border border-gray-800">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 text-gray-400 flex-shrink-0 mt-0.5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                <div className="flex-1">
-                  <div className="text-xs text-gray-500 mb-1">Funding Deadline</div>
-                  <div className="text-sm text-gray-300">{formatDate(fundingDeadline)}</div>
+                {/* Progress bar */}
+                <div className="space-y-2">
+                  <div className="relative h-3 w-full overflow-hidden rounded-full bg-gray-800">
+                    <div
+                      className="h-full bg-gradient-to-r from-green-500 to-green-400 transition-all rounded-full"
+                      style={{ width: `${Math.min(fundingPercentage, 100)}%` }}
+                    />
+                  </div>
+                  <div className="text-center text-sm font-bold text-white">{fundingPercentage.toFixed(1)}%</div>
                 </div>
               </div>
-            )}
-          </div>
+
+              {/* Additional Information */}
+              <div className="space-y-4 mb-6">
+                {/* Contract Address */}
+                <div className="flex items-start gap-3 p-4 rounded-lg bg-gray-900/30 border border-gray-800">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-gray-400 flex-shrink-0 mt-0.5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                    />
+                  </svg>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs text-gray-500 mb-1">Contract Address</div>
+                    <div className="text-sm font-mono text-gray-300 break-all">{contractAddress}</div>
+                  </div>
+                </div>
+
+                {/* Created Date */}
+                <div className="flex items-start gap-3 p-4 rounded-lg bg-gray-900/30 border border-gray-800">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-gray-400 flex-shrink-0 mt-0.5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  <div className="flex-1">
+                    <div className="text-xs text-gray-500 mb-1">Created</div>
+                    <div className="text-sm text-gray-300">{formatDate(createdAt)}</div>
+                  </div>
+                </div>
+
+                {/* Energy Produced */}
+                <div className="flex items-start gap-3 p-4 rounded-lg bg-gray-900/30 border border-gray-800">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-gray-400 flex-shrink-0 mt-0.5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  <div className="flex-1">
+                    <div className="text-xs text-gray-500 mb-1">Energy Produced</div>
+                    <div className="text-sm text-gray-300">{energyProduced.toString()} kWh</div>
+                  </div>
+                </div>
+
+                {/* Project Owner */}
+                <div className="flex items-start gap-3 p-4 rounded-lg bg-gray-900/30 border border-gray-800">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-gray-400 flex-shrink-0 mt-0.5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    />
+                  </svg>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs text-gray-500 mb-1">Project Owner</div>
+                    <div className="text-sm font-mono text-gray-300 break-all">{projectOwner}</div>
+                  </div>
+                </div>
+
+                {/* Funding Deadline */}
+                {fundingDeadline > 0n && (
+                  <div className="flex items-start gap-3 p-4 rounded-lg bg-gray-900/30 border border-gray-800">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 text-gray-400 flex-shrink-0 mt-0.5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <div className="flex-1">
+                      <div className="text-xs text-gray-500 mb-1">Funding Deadline</div>
+                      <div className="text-sm text-gray-300">{formatDate(fundingDeadline)}</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Transparency Tab */}
+          {activeTab === "transparency" && (
+            <div>
+              <FinancialTransparency projectId={projectId} projectName={name} />
+            </div>
+          )}
 
           {/* Invest Button */}
           <button
@@ -336,7 +378,15 @@ export const ProjectDetailsModal = ({
             disabled={!isActive || isCompleted || isFailed || isFundingComplete}
             className="w-full inline-flex items-center justify-center rounded-lg text-base font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-6 py-3"
           >
-            {isFailed ? "Funding Failed" : isCompleted ? "Project Completed" : !isActive ? "Project Inactive" : isFundingComplete ? "Fully Funded" : "Invest in This Project"}
+            {isFailed
+              ? "Funding Failed"
+              : isCompleted
+              ? "Project Completed"
+              : !isActive
+              ? "Project Inactive"
+              : isFundingComplete
+              ? "Fully Funded"
+              : "Invest in This Project"}
           </button>
         </div>
       </div>

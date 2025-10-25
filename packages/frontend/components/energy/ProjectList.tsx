@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { ProjectCard } from "./ProjectCard";
 import { InvestmentModal } from "./InvestmentModal";
+import { ProjectCard } from "./ProjectCard";
+import deployedContracts from "~~/contracts/deployedContracts";
 import { useScaffoldContractRead } from "~~/hooks/scaffold-eth";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
-import deployedContracts from "~~/contracts/deployedContracts";
 
 interface ProjectListProps {
   filter?: string;
@@ -46,7 +46,7 @@ export const ProjectList = ({ filter = "All" }: ProjectListProps) => {
   return (
     <div className="w-full">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        {currentProjectIds.map((id) => (
+        {currentProjectIds.map(id => (
           <ProjectCardWrapper key={id} projectId={id} onInvest={handleInvest} filter={filter} />
         ))}
       </div>
@@ -69,7 +69,7 @@ export const ProjectList = ({ filter = "All" }: ProjectListProps) => {
           </button>
 
           <div className="flex gap-2">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
               <button
                 key={page}
                 onClick={() => handlePageChange(page)}
@@ -102,11 +102,7 @@ export const ProjectList = ({ filter = "All" }: ProjectListProps) => {
       )}
 
       {/* Investment Modal */}
-      <InvestmentModal
-        projectId={selectedProject}
-        isOpen={selectedProject !== null}
-        onClose={handleCloseModal}
-      />
+      <InvestmentModal projectId={selectedProject} isOpen={selectedProject !== null} onClose={handleCloseModal} />
     </div>
   );
 };
@@ -115,7 +111,7 @@ export const ProjectList = ({ filter = "All" }: ProjectListProps) => {
 const ProjectCardWrapper = ({
   projectId,
   onInvest,
-  filter
+  filter,
 }: {
   projectId: number;
   onInvest: (id: number) => void;
@@ -136,8 +132,11 @@ const ProjectCardWrapper = ({
   });
 
   // Get contract address from deployedContracts
-  const networkContracts = targetNetwork.id ? deployedContracts[targetNetwork.id as keyof typeof deployedContracts] : undefined;
-  const contractAddress = networkContracts && 'SandBlock' in networkContracts ? (networkContracts.SandBlock as any).address : undefined;
+  const networkContracts = targetNetwork.id
+    ? deployedContracts[targetNetwork.id as keyof typeof deployedContracts]
+    : undefined;
+  const contractAddress =
+    networkContracts && "SandBlock" in networkContracts ? (networkContracts.SandBlock as any).address : undefined;
 
   if (!projectData || !timelineData) {
     return (
@@ -157,8 +156,8 @@ const ProjectCardWrapper = ({
     projectType,
     targetAmount,
     totalInvested,
-    energyProduced,
-    _totalEnergyCost,
+    energyProduced, // totalEnergyCost - not used
+    ,
     projectOwner,
     isActive,
     isCompleted,

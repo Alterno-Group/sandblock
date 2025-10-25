@@ -96,6 +96,44 @@ contract SandBlock is Ownable, ReentrancyGuard {
     // Project ID => Energy production records
     mapping(uint256 => EnergyRecord[]) public energyRecords;
 
+    // ============ OFF-RAMP / ON-RAMP TRANSPARENCY ============
+
+    // Off-Ramp: Convert USDT → Fiat for construction expenses
+    struct OffRampTransaction {
+        uint256 usdtAmount;         // USDT withdrawn from contract
+        uint256 fiatAmount;         // Fiat received (in USD cents)
+        uint256 exchangeRate;       // Exchange rate (100 = 1.00)
+        uint256 timestamp;          // When transaction occurred
+        string provider;            // e.g., "Circle", "Coinbase"
+        string purpose;             // e.g., "Solar panels purchase"
+        string txHash;              // Off-chain transaction reference
+        string bankAccount;         // Last 4 digits of destination account
+        bool isCompleted;           // Transaction confirmed
+    }
+
+    // On-Ramp: Convert Fiat → USDT from energy revenue
+    struct OnRampTransaction {
+        uint256 fiatAmount;         // Fiat converted (in USD cents)
+        uint256 usdtAmount;         // USDT deposited to contract
+        uint256 exchangeRate;       // Exchange rate (100 = 1.00)
+        uint256 timestamp;          // When transaction occurred
+        string provider;            // e.g., "Circle", "Coinbase"
+        string source;              // e.g., "Energy sales - Jan 2024"
+        string txHash;              // Off-chain transaction reference
+        string invoiceNumber;       // Energy invoice reference
+        bool isCompleted;           // Transaction confirmed
+    }
+
+    // Project ID => Array of off-ramp transactions
+    mapping(uint256 => OffRampTransaction[]) public offRampTransactions;
+
+    // Project ID => Array of on-ramp transactions
+    mapping(uint256 => OnRampTransaction[]) public onRampTransactions;
+
+    // Track total amounts for transparency
+    mapping(uint256 => uint256) public totalOffRamped;  // Total USDT withdrawn
+    mapping(uint256 => uint256) public totalOnRamped;   // Total USDT deposited back
+
     uint256 public projectCount;
 
     // Events
@@ -140,6 +178,35 @@ contract SandBlock is Ownable, ReentrancyGuard {
         uint256 indexed projectId,
         address indexed investor,
         uint256 amount
+    );
+
+    // Off-Ramp / On-Ramp Events
+    event OffRampInitiated(
+        uint256 indexed projectId,
+        uint256 usdtAmount,
+        uint256 fiatAmount,
+        string provider,
+        string purpose
+    );
+
+    event OffRampCompleted(
+        uint256 indexed projectId,
+        uint256 transactionIndex,
+        string txHash
+    );
+
+    event OnRampInitiated(
+        uint256 indexed projectId,
+        uint256 fiatAmount,
+        uint256 usdtAmount,
+        string provider,
+        string source
+    );
+
+    event OnRampCompleted(
+        uint256 indexed projectId,
+        uint256 transactionIndex,
+        string txHash
     );
 
     event FundingFailed(
@@ -686,5 +753,227 @@ contract SandBlock is Ownable, ReentrancyGuard {
         require(!project.isCompleted, "Cannot toggle completed project");
 
         project.isActive = !project.isActive;
+    }
+
+    // ============ OFF-RAMP / ON-RAMP FUNCTIONS ============
+
+    /**
+     * @dev Initiate off-ramp transaction (USDT → Fiat for construction)
+     * @param _projectId Project ID
+     * @param _usdtAmount Amount of USDT to withdraw (6 decimals)
+     * @param _fiatAmount Expected fiat amount in USD cents (e.g., 100000 = $1,000.00)
+     * @param _provider Payment provider name (e.g., "Circle")
+     * @param _purpose Description of what funds will be used for
+     * @param _bankAccount Last 4 digits of destination bank account
+     */
+    function initiateOffRamp(
+        uint256 _projectId,
+        uint256 _usdtAmount,
+        uint256 _fiatAmount,
+        string memory _provider,
+        string memory _purpose,
+        string memory _bankAccount
+    ) external nonReentrant {
+        Project storage project = projects[_projectId];
+
+        require(
+            msg.sender == project.projectOwner || msg.sender == owner() || admins[msg.sender],
+            "Not authorized"
+        );
+        require(project.totalInvested >= project.targetAmount, "Funding not complete");
+        require(_usdtAmount > 0, "Amount must be greater than 0");
+        require(_usdtAmount <= usdtToken.balanceOf(address(this)), "Insufficient contract balance");
+
+        // Calculate exchange rate (100 = 1.00, in basis points)
+        uint256 exchangeRate = (_fiatAmount * 10000) / _usdtAmount;
+
+        // Create off-ramp record
+        offRampTransactions[_projectId].push(OffRampTransaction({
+            usdtAmount: _usdtAmount,
+            fiatAmount: _fiatAmount,
+            exchangeRate: exchangeRate,
+            timestamp: block.timestamp,
+            provider: _provider,
+            purpose: _purpose,
+            txHash: "", // Will be filled when completed
+            bankAccount: _bankAccount,
+            isCompleted: false
+        }));
+
+        // Transfer USDT to project owner (they will convert to fiat off-chain)
+        require(
+            usdtToken.transfer(project.projectOwner, _usdtAmount),
+            "USDT transfer failed"
+        );
+
+        // Update total off-ramped
+        totalOffRamped[_projectId] += _usdtAmount;
+
+        emit OffRampInitiated(_projectId, _usdtAmount, _fiatAmount, _provider, _purpose);
+    }
+
+    /**
+     * @dev Complete off-ramp transaction (confirm fiat received)
+     * @param _projectId Project ID
+     * @param _transactionIndex Index in offRampTransactions array
+     * @param _txHash Off-chain transaction hash/reference
+     */
+    function completeOffRamp(
+        uint256 _projectId,
+        uint256 _transactionIndex,
+        string memory _txHash
+    ) external {
+        Project storage project = projects[_projectId];
+
+        require(
+            msg.sender == project.projectOwner || msg.sender == owner() || admins[msg.sender],
+            "Not authorized"
+        );
+        require(_transactionIndex < offRampTransactions[_projectId].length, "Invalid index");
+
+        OffRampTransaction storage txn = offRampTransactions[_projectId][_transactionIndex];
+        require(!txn.isCompleted, "Already completed");
+
+        txn.isCompleted = true;
+        txn.txHash = _txHash;
+
+        emit OffRampCompleted(_projectId, _transactionIndex, _txHash);
+    }
+
+    /**
+     * @dev Initiate on-ramp transaction (Fiat → USDT from energy revenue)
+     * @param _projectId Project ID
+     * @param _fiatAmount Amount of fiat being converted (in USD cents)
+     * @param _usdtAmount Amount of USDT deposited (6 decimals)
+     * @param _provider Payment provider name
+     * @param _source Description of revenue source
+     * @param _invoiceNumber Energy invoice reference
+     */
+    function initiateOnRamp(
+        uint256 _projectId,
+        uint256 _fiatAmount,
+        uint256 _usdtAmount,
+        string memory _provider,
+        string memory _source,
+        string memory _invoiceNumber
+    ) external nonReentrant {
+        Project storage project = projects[_projectId];
+
+        require(
+            msg.sender == project.projectOwner || msg.sender == owner() || admins[msg.sender],
+            "Not authorized"
+        );
+        require(project.isCompleted, "Project must be completed");
+        require(_usdtAmount > 0, "Amount must be greater than 0");
+
+        // Calculate exchange rate
+        uint256 exchangeRate = (_fiatAmount * 10000) / _usdtAmount;
+
+        // Create on-ramp record
+        onRampTransactions[_projectId].push(OnRampTransaction({
+            fiatAmount: _fiatAmount,
+            usdtAmount: _usdtAmount,
+            exchangeRate: exchangeRate,
+            timestamp: block.timestamp,
+            provider: _provider,
+            source: _source,
+            txHash: "", // Will be filled when completed
+            invoiceNumber: _invoiceNumber,
+            isCompleted: false
+        }));
+
+        // Project owner deposits USDT back to contract (converted from fiat off-chain)
+        require(
+            usdtToken.transferFrom(msg.sender, address(this), _usdtAmount),
+            "USDT transfer failed"
+        );
+
+        // Update total on-ramped
+        totalOnRamped[_projectId] += _usdtAmount;
+
+        emit OnRampInitiated(_projectId, _fiatAmount, _usdtAmount, _provider, _source);
+    }
+
+    /**
+     * @dev Complete on-ramp transaction (confirm USDT deposited)
+     * @param _projectId Project ID
+     * @param _transactionIndex Index in onRampTransactions array
+     * @param _txHash Off-chain transaction hash/reference
+     */
+    function completeOnRamp(
+        uint256 _projectId,
+        uint256 _transactionIndex,
+        string memory _txHash
+    ) external {
+        Project storage project = projects[_projectId];
+
+        require(
+            msg.sender == project.projectOwner || msg.sender == owner() || admins[msg.sender],
+            "Not authorized"
+        );
+        require(_transactionIndex < onRampTransactions[_projectId].length, "Invalid index");
+
+        OnRampTransaction storage txn = onRampTransactions[_projectId][_transactionIndex];
+        require(!txn.isCompleted, "Already completed");
+
+        txn.isCompleted = true;
+        txn.txHash = _txHash;
+
+        emit OnRampCompleted(_projectId, _transactionIndex, _txHash);
+    }
+
+    /**
+     * @dev Get all off-ramp transactions for a project
+     */
+    function getOffRampTransactions(uint256 _projectId)
+        external
+        view
+        returns (OffRampTransaction[] memory)
+    {
+        return offRampTransactions[_projectId];
+    }
+
+    /**
+     * @dev Get all on-ramp transactions for a project
+     */
+    function getOnRampTransactions(uint256 _projectId)
+        external
+        view
+        returns (OnRampTransaction[] memory)
+    {
+        return onRampTransactions[_projectId];
+    }
+
+    /**
+     * @dev Get off-ramp/on-ramp summary for a project
+     */
+    function getFinancialSummary(uint256 _projectId)
+        external
+        view
+        returns (
+            uint256 totalInvested,
+            uint256 totalOffRampedAmount,
+            uint256 totalOnRampedAmount,
+            uint256 offRampCount,
+            uint256 onRampCount,
+            int256 netBalance
+        )
+    {
+        Project storage project = projects[_projectId];
+
+        uint256 offRamps = offRampTransactions[_projectId].length;
+        uint256 onRamps = onRampTransactions[_projectId].length;
+
+        // Net balance = Total invested - Off-ramped + On-ramped
+        int256 balance = int256(project.totalInvested) - int256(totalOffRamped[_projectId]) + int256(totalOnRamped[_projectId]);
+
+        return (
+            project.totalInvested,
+            totalOffRamped[_projectId],
+            totalOnRamped[_projectId],
+            offRamps,
+            onRamps,
+            balance
+        );
     }
 }

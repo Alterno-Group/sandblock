@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   4202: {
     MockUSDT: {
-      address: "0xb84e64903D3C0fcFbf4154f5f279a8DBcaBF9718",
+      address: "0xdf5f69Fbb0E6aF8480Cf9ebefE78dDD1Ea9829a7",
       abi: [
         {
           inputs: [],
@@ -325,7 +325,7 @@ const deployedContracts = {
       },
     },
     SandBlock: {
-      address: "0xf28649583Df87f9A549CC6D725b8A64e02156842",
+      address: "0x183f3424De62E59b36f54fb6B246F748a1dc9fD6",
       abi: [
         {
           inputs: [
@@ -518,6 +518,130 @@ const deployedContracts = {
             },
           ],
           name: "InvestmentMade",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "projectId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "transactionIndex",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "txHash",
+              type: "string",
+            },
+          ],
+          name: "OffRampCompleted",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "projectId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "usdtAmount",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "fiatAmount",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "provider",
+              type: "string",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "purpose",
+              type: "string",
+            },
+          ],
+          name: "OffRampInitiated",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "projectId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "transactionIndex",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "txHash",
+              type: "string",
+            },
+          ],
+          name: "OnRampCompleted",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "projectId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "fiatAmount",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "usdtAmount",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "provider",
+              type: "string",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "source",
+              type: "string",
+            },
+          ],
+          name: "OnRampInitiated",
           type: "event",
         },
         {
@@ -872,6 +996,52 @@ const deployedContracts = {
         {
           inputs: [
             {
+              internalType: "uint256",
+              name: "_projectId",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_transactionIndex",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "_txHash",
+              type: "string",
+            },
+          ],
+          name: "completeOffRamp",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_projectId",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_transactionIndex",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "_txHash",
+              type: "string",
+            },
+          ],
+          name: "completeOnRamp",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
               internalType: "string",
               name: "_name",
               type: "string",
@@ -1023,6 +1193,50 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "uint256",
+              name: "_projectId",
+              type: "uint256",
+            },
+          ],
+          name: "getFinancialSummary",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "totalInvested",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "totalOffRampedAmount",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "totalOnRampedAmount",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "offRampCount",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "onRampCount",
+              type: "uint256",
+            },
+            {
+              internalType: "int256",
+              name: "netBalance",
+              type: "int256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
               name: "_amount",
               type: "uint256",
             },
@@ -1087,6 +1301,138 @@ const deployedContracts = {
               internalType: "uint256",
               name: "totalPrincipalClaimed",
               type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_projectId",
+              type: "uint256",
+            },
+          ],
+          name: "getOffRampTransactions",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "uint256",
+                  name: "usdtAmount",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "fiatAmount",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "exchangeRate",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "timestamp",
+                  type: "uint256",
+                },
+                {
+                  internalType: "string",
+                  name: "provider",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "purpose",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "txHash",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "bankAccount",
+                  type: "string",
+                },
+                {
+                  internalType: "bool",
+                  name: "isCompleted",
+                  type: "bool",
+                },
+              ],
+              internalType: "struct SandBlock.OffRampTransaction[]",
+              name: "",
+              type: "tuple[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_projectId",
+              type: "uint256",
+            },
+          ],
+          name: "getOnRampTransactions",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "uint256",
+                  name: "fiatAmount",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "usdtAmount",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "exchangeRate",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "timestamp",
+                  type: "uint256",
+                },
+                {
+                  internalType: "string",
+                  name: "provider",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "source",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "txHash",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "invoiceNumber",
+                  type: "string",
+                },
+                {
+                  internalType: "bool",
+                  name: "isCompleted",
+                  type: "bool",
+                },
+              ],
+              internalType: "struct SandBlock.OnRampTransaction[]",
+              name: "",
+              type: "tuple[]",
             },
           ],
           stateMutability: "view",
@@ -1228,6 +1574,82 @@ const deployedContracts = {
             },
             {
               internalType: "uint256",
+              name: "_usdtAmount",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_fiatAmount",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "_provider",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "_purpose",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "_bankAccount",
+              type: "string",
+            },
+          ],
+          name: "initiateOffRamp",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_projectId",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_fiatAmount",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_usdtAmount",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "_provider",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "_source",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "_invoiceNumber",
+              type: "string",
+            },
+          ],
+          name: "initiateOnRamp",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_projectId",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
               name: "_amount",
               type: "uint256",
             },
@@ -1335,6 +1757,134 @@ const deployedContracts = {
           name: "markFundingFailed",
           outputs: [],
           stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "offRampTransactions",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "usdtAmount",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "fiatAmount",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "exchangeRate",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "timestamp",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "provider",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "purpose",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "txHash",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "bankAccount",
+              type: "string",
+            },
+            {
+              internalType: "bool",
+              name: "isCompleted",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "onRampTransactions",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "fiatAmount",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "usdtAmount",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "exchangeRate",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "timestamp",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "provider",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "source",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "txHash",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "invoiceNumber",
+              type: "string",
+            },
+            {
+              internalType: "bool",
+              name: "isCompleted",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -1545,6 +2095,44 @@ const deployedContracts = {
           name: "toggleProjectStatus",
           outputs: [],
           stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "totalOffRamped",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "totalOnRamped",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {

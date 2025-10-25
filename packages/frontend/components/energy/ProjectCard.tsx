@@ -92,96 +92,110 @@ export const ProjectCard = ({
       >
         {/* Header */}
         <div className="flex flex-col space-y-1 p-4 sm:p-5 pb-3">
-        <div className="flex items-start justify-between gap-3 mb-1">
-          <h3 className="font-semibold text-xl sm:text-2xl text-white line-clamp-2 flex-1">{name}</h3>
-          <div className="flex gap-2 flex-shrink-0">
-            <span className={`inline-flex items-center rounded-md border px-2.5 py-1 text-xs font-semibold ${getProjectTypeColor(projectType)}`}>
-              {projectType}
-            </span>
-            <span className={`inline-flex items-center rounded-md border px-2.5 py-1 text-xs font-semibold ${getStatusColor()}`}>
-              {getStatusText()}
-            </span>
+          <div className="flex items-start justify-between gap-3 mb-1">
+            <h3 className="font-semibold text-xl sm:text-2xl text-white line-clamp-2 flex-1">{name}</h3>
+            <div className="flex gap-2 flex-shrink-0">
+              <span
+                className={`inline-flex items-center rounded-md border px-2.5 py-1 text-xs font-semibold ${getProjectTypeColor(
+                  projectType,
+                )}`}
+              >
+                {projectType}
+              </span>
+              <span
+                className={`inline-flex items-center rounded-md border px-2.5 py-1 text-xs font-semibold ${getStatusColor()}`}
+              >
+                {getStatusText()}
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5 text-sm text-gray-400">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4 flex-shrink-0"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+              />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span className="truncate">{location}</span>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 text-sm text-gray-400">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4 flex-shrink-0"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
+
+        {/* Content */}
+        <div className="px-4 sm:px-5 pb-3 sm:pb-4 flex-1">
+          <p className="text-sm text-gray-400 line-clamp-2 mb-3">{description}</p>
+
+          {/* Funding Progress */}
+          <div className="space-y-2 mb-3">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-400">Funding Progress</span>
+              <span className="font-bold font-mono text-white text-base">{fundingPercentage.toFixed(1)}%</span>
+            </div>
+            <div className="relative h-2 w-full overflow-hidden rounded-full bg-gray-800">
+              <div
+                className="h-full bg-gradient-to-r from-green-500 to-green-400 transition-all rounded-full"
+                style={{ width: `${Math.min(fundingPercentage, 100)}%` }}
+              />
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="font-mono font-bold text-white text-lg">${formatUSDT(totalInvested)}</span>
+              <span className="text-gray-400">of ${formatUSDT(targetAmount)}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center px-4 sm:px-5 pb-4 sm:pb-5">
+          <button
+            onClick={e => {
+              e.stopPropagation();
+              onInvest(projectId);
+            }}
+            disabled={!isActive || isCompleted || isFailed || isFundingComplete}
+            className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 sm:h-10 px-3 sm:px-4 py-2 w-full"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-            />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-          <span className="truncate">{location}</span>
+            {isFailed
+              ? "Funding Failed"
+              : isCompleted
+              ? "Completed"
+              : !isActive
+              ? "Inactive"
+              : isFundingComplete
+              ? "Fully Funded"
+              : "Invest Now"}
+          </button>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="px-4 sm:px-5 pb-3 sm:pb-4 flex-1">
-        <p className="text-sm text-gray-400 line-clamp-2 mb-3">{description}</p>
-
-        {/* Funding Progress */}
-        <div className="space-y-2 mb-3">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-400">Funding Progress</span>
-            <span className="font-bold font-mono text-white text-base">{fundingPercentage.toFixed(1)}%</span>
-          </div>
-          <div className="relative h-2 w-full overflow-hidden rounded-full bg-gray-800">
-            <div
-              className="h-full bg-gradient-to-r from-green-500 to-green-400 transition-all rounded-full"
-              style={{ width: `${Math.min(fundingPercentage, 100)}%` }}
-            />
-          </div>
-          <div className="flex items-center justify-between text-sm">
-            <span className="font-mono font-bold text-white text-lg">${formatUSDT(totalInvested)}</span>
-            <span className="text-gray-400">of ${formatUSDT(targetAmount)}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div className="flex items-center px-4 sm:px-5 pb-4 sm:pb-5">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onInvest(projectId);
-          }}
-          disabled={!isActive || isCompleted || isFailed || isFundingComplete}
-          className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 sm:h-10 px-3 sm:px-4 py-2 w-full"
-        >
-          {isFailed ? "Funding Failed" : isCompleted ? "Completed" : !isActive ? "Inactive" : isFundingComplete ? "Fully Funded" : "Invest Now"}
-        </button>
-      </div>
-    </div>
-
-    {/* Project Details Modal */}
-    <ProjectDetailsModal
-      isOpen={isModalOpen}
-      onClose={() => setIsModalOpen(false)}
-      projectId={projectId}
-      name={name}
-      description={description}
-      location={location}
-      projectType={projectType}
-      targetAmount={targetAmount}
-      totalInvested={totalInvested}
-      energyProduced={energyProduced}
-      projectOwner={projectOwner}
-      isActive={isActive}
-      isCompleted={isCompleted}
-      isFailed={isFailed}
-      fundingDeadline={fundingDeadline}
-      contractAddress={contractAddress}
-      createdAt={createdAt}
-      onInvest={onInvest}
-    />
+      {/* Project Details Modal */}
+      <ProjectDetailsModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        projectId={projectId}
+        name={name}
+        description={description}
+        location={location}
+        projectType={projectType}
+        targetAmount={targetAmount}
+        totalInvested={totalInvested}
+        energyProduced={energyProduced}
+        projectOwner={projectOwner}
+        isActive={isActive}
+        isCompleted={isCompleted}
+        isFailed={isFailed}
+        fundingDeadline={fundingDeadline}
+        contractAddress={contractAddress}
+        createdAt={createdAt}
+        onInvest={onInvest}
+      />
     </>
   );
 };

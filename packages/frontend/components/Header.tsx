@@ -2,8 +2,8 @@
 
 import React from "react";
 import Link from "next/link";
-import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { SwitchTheme } from "~~/components/SwitchTheme";
+import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 
 export const Header = () => {
   return (
@@ -20,11 +20,7 @@ export const Header = () => {
                 stroke="currentColor"
                 strokeWidth={2.5}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
             <div className="min-w-0 flex-col justify-center hidden md:flex">

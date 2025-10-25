@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { createPortal } from "react-dom";
+import { useEffect, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
+import { createPortal } from "react-dom";
 import { Address as AddressType } from "viem";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { Address } from "~~/components/scaffold-eth";
