@@ -252,7 +252,7 @@ export const InvestmentModal = ({ projectId, isOpen, onClose }: InvestmentModalP
   }
 
   const modalContent = (
-    <div className="fixed top-0 left-0 right-0 bottom-0 z-[99999] flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div className="fixed top-0 left-0 right-0 bottom-0 z-[99999] flex items-center justify-center p-0 sm:p-4">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
@@ -437,33 +437,36 @@ export const InvestmentModal = ({ projectId, isOpen, onClose }: InvestmentModalP
             )}
 
             {/* Approval Info */}
-            {needsApproval && investAmount && numInvestAmount > 0 && numInvestAmount <= Number(formatUSDT(remainingAmount)) && (
-              <div className="mt-3 p-3 sm:p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                <div className="flex items-start gap-2">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-blue-500">Token Approval Required</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      You&apos;ll need to approve the SandBlock contract to spend your USDT tokens. This is a
-                      one-time transaction that will be followed by the investment transaction.
-                    </p>
+            {needsApproval &&
+              investAmount &&
+              numInvestAmount > 0 &&
+              numInvestAmount <= Number(formatUSDT(remainingAmount)) && (
+                <div className="mt-3 p-3 sm:p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                  <div className="flex items-start gap-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-blue-500">Token Approval Required</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        You&apos;ll need to approve the SandBlock contract to spend your USDT tokens. This is a one-time
+                        transaction that will be followed by the investment transaction.
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
             {/* Error Message */}
             {errorMessage && (

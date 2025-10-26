@@ -92,10 +92,10 @@ export const FinancialTransparency = ({ projectId, projectName }: FinancialTrans
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-border">
+      <div className="flex gap-1 sm:gap-2 border-b border-border overflow-x-auto">
         <button
           onClick={() => setActiveTab("summary")}
-          className={`px-4 py-2 font-medium border-b-2 transition-colors ${
+          className={`px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap flex-shrink-0 ${
             activeTab === "summary"
               ? "border-primary text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"
@@ -105,7 +105,7 @@ export const FinancialTransparency = ({ projectId, projectName }: FinancialTrans
         </button>
         <button
           onClick={() => setActiveTab("offramp")}
-          className={`px-4 py-2 font-medium border-b-2 transition-colors ${
+          className={`px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap flex-shrink-0 ${
             activeTab === "offramp"
               ? "border-primary text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"
@@ -115,7 +115,7 @@ export const FinancialTransparency = ({ projectId, projectName }: FinancialTrans
         </button>
         <button
           onClick={() => setActiveTab("onramp")}
-          className={`px-4 py-2 font-medium border-b-2 transition-colors ${
+          className={`px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap flex-shrink-0 ${
             activeTab === "onramp"
               ? "border-primary text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"

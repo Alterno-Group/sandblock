@@ -222,18 +222,24 @@ export const ProjectDetailsModal = ({
                 <h3 className="text-sm font-semibold text-gray-400 mb-4">Funding Progress</h3>
 
                 {/* Three column stats */}
-                <div className="grid grid-cols-3 gap-4 mb-4">
-                  <div>
-                    <div className="text-xs text-gray-500 mb-1">Goal</div>
-                    <div className="text-lg font-bold text-white">${formatUSDT(targetAmount)}</div>
+                <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-4">
+                  <div className="min-w-0">
+                    <div className="text-[10px] sm:text-xs text-gray-500 mb-1">Goal</div>
+                    <div className="text-sm sm:text-lg font-bold text-white break-words">
+                      ${formatUSDT(targetAmount)}
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-xs text-gray-500 mb-1">Raised</div>
-                    <div className="text-lg font-bold text-primary">${formatUSDT(totalInvested)}</div>
+                  <div className="min-w-0">
+                    <div className="text-[10px] sm:text-xs text-gray-500 mb-1">Raised</div>
+                    <div className="text-sm sm:text-lg font-bold text-primary break-words">
+                      ${formatUSDT(totalInvested)}
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-xs text-gray-500 mb-1">Remaining</div>
-                    <div className="text-lg font-bold text-green-500">${formatUSDT(remaining)}</div>
+                  <div className="min-w-0">
+                    <div className="text-[10px] sm:text-xs text-gray-500 mb-1">Remaining</div>
+                    <div className="text-sm sm:text-lg font-bold text-green-500 break-words">
+                      ${formatUSDT(remaining)}
+                    </div>
                   </div>
                 </div>
 
@@ -245,7 +251,7 @@ export const ProjectDetailsModal = ({
                       style={{ width: `${Math.min((Number(totalInvested) / Number(targetAmount)) * 100, 100)}%` }}
                     />
                   </div>
-                  <div className="text-center text-sm font-bold text-white">
+                  <div className="text-center text-xs sm:text-sm font-bold text-white break-words">
                     {((Number(totalInvested) / Number(targetAmount)) * 100).toFixed(6)}%
                   </div>
                 </div>

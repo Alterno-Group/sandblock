@@ -86,11 +86,11 @@ export const OnRampModal = ({ isOpen, onClose, targetAmount }: OnRampModalProps)
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 z-[100000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-md bg-card rounded-lg shadow-lg border border-card-border m-4"
+        className="relative w-full max-w-md bg-card rounded-lg shadow-lg border border-card-border max-h-[90vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
