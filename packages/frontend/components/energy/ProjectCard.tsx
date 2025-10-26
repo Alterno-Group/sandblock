@@ -86,13 +86,13 @@ export const ProjectCard = ({
   return (
     <>
       <div
-        className="rounded-2xl border bg-[#1a1d29] border-gray-800 shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer flex flex-col h-full"
+        className="rounded-2xl border bg-card border-border shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer flex flex-col h-full"
         onClick={() => setIsModalOpen(true)}
       >
         {/* Header */}
         <div className="flex flex-col space-y-1 p-4 sm:p-5 pb-3">
           <div className="flex items-start justify-between gap-3 mb-1">
-            <h3 className="font-semibold text-xl sm:text-2xl text-white line-clamp-2 flex-1">{name}</h3>
+            <h3 className="font-semibold text-xl sm:text-2xl text-foreground line-clamp-2 flex-1">{name}</h3>
             <div className="flex gap-2 flex-shrink-0">
               <span
                 className={`inline-flex items-center rounded-md border px-2.5 py-1 text-xs font-semibold ${getProjectTypeColor(
@@ -108,7 +108,7 @@ export const ProjectCard = ({
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 text-sm text-gray-400">
+          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-4 w-4 flex-shrink-0"
@@ -130,25 +130,25 @@ export const ProjectCard = ({
 
         {/* Content */}
         <div className="px-4 sm:px-5 pb-3 sm:pb-4 flex-1">
-          <p className="text-sm text-gray-400 line-clamp-2 mb-3">{description}</p>
+          <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{description}</p>
 
           {/* Funding Progress */}
           <div className="space-y-2 mb-3">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-400">Funding Progress</span>
-              <span className="font-bold font-mono text-white text-base">
+              <span className="text-muted-foreground">Funding Progress</span>
+              <span className="font-bold font-mono text-foreground text-base">
                 {((Number(totalInvested) / Number(targetAmount)) * 100).toFixed(6)}%
               </span>
             </div>
-            <div className="relative h-2 w-full overflow-hidden rounded-full bg-gray-800">
+            <div className="relative h-2 w-full overflow-hidden rounded-full bg-muted">
               <div
                 className="h-full bg-gradient-to-r from-green-500 to-green-400 transition-all rounded-full"
                 style={{ width: `${Math.min((Number(totalInvested) / Number(targetAmount)) * 100, 100)}%` }}
               />
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="font-mono font-bold text-white text-lg">${formatUSDT(totalInvested)}</span>
-              <span className="text-gray-400">of ${formatUSDT(targetAmount)}</span>
+              <span className="font-mono font-bold text-foreground text-lg">${formatUSDT(totalInvested)}</span>
+              <span className="text-muted-foreground">of ${formatUSDT(targetAmount)}</span>
             </div>
           </div>
         </div>

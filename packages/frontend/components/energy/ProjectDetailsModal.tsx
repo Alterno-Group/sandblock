@@ -121,13 +121,13 @@ export const ProjectDetailsModal = ({
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border bg-[#1a1d29] border-gray-800 shadow-2xl"
+        className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border bg-card border-border shadow-2xl"
         onClick={e => e.stopPropagation()}
       >
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 rounded-lg p-2 text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
+          className="absolute top-4 right-4 z-10 rounded-lg p-2 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
           aria-label="Close modal"
         >
           <svg
@@ -146,7 +146,7 @@ export const ProjectDetailsModal = ({
           {/* Header */}
           <div className="mb-6">
             <div className="flex items-start gap-3 mb-3">
-              <h2 className="font-bold text-2xl sm:text-3xl text-white flex-1">{name}</h2>
+              <h2 className="font-bold text-2xl sm:text-3xl text-foreground flex-1">{name}</h2>
               <div className="flex gap-2 flex-shrink-0">
                 <span
                   className={`inline-flex items-center rounded-md border px-2.5 py-1 text-xs font-semibold ${getProjectTypeColor(
@@ -163,7 +163,7 @@ export const ProjectDetailsModal = ({
               </div>
             </div>
 
-            <div className="flex items-center gap-2 text-gray-400 mb-4">
+            <div className="flex items-center gap-2 text-muted-foreground mb-4">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-4 w-4 flex-shrink-0"
@@ -187,17 +187,17 @@ export const ProjectDetailsModal = ({
               <span>{location}</span>
             </div>
 
-            <p className="text-gray-300 leading-relaxed">{description}</p>
+            <p className="text-muted-foreground leading-relaxed">{description}</p>
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-2 border-b border-gray-800 mb-6">
+          <div className="flex gap-2 border-b border-border mb-6">
             <button
               onClick={() => setActiveTab("details")}
               className={`px-4 py-2 font-medium border-b-2 transition-colors ${
                 activeTab === "details"
                   ? "border-primary text-primary"
-                  : "border-transparent text-gray-400 hover:text-white"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
             >
               📋 Details
@@ -207,7 +207,7 @@ export const ProjectDetailsModal = ({
               className={`px-4 py-2 font-medium border-b-2 transition-colors ${
                 activeTab === "transparency"
                   ? "border-primary text-primary"
-                  : "border-transparent text-gray-400 hover:text-white"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
             >
               💎 Transparency
@@ -218,26 +218,26 @@ export const ProjectDetailsModal = ({
           {activeTab === "details" && (
             <div>
               {/* Funding Progress */}
-              <div className="mb-6 p-5 rounded-xl bg-gray-900/50 border border-gray-800">
-                <h3 className="text-sm font-semibold text-gray-400 mb-4">Funding Progress</h3>
+              <div className="mb-6 p-5 rounded-xl bg-muted/50 border border-border">
+                <h3 className="text-sm font-semibold text-muted-foreground mb-4">Funding Progress</h3>
 
                 {/* Three column stats */}
                 <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-4">
                   <div className="min-w-0">
-                    <div className="text-[10px] sm:text-xs text-gray-500 mb-1">Goal</div>
-                    <div className="text-sm sm:text-lg font-bold text-white break-words">
+                    <div className="text-[10px] sm:text-xs text-muted-foreground mb-1">Goal</div>
+                    <div className="text-sm sm:text-lg font-bold text-foreground break-words">
                       ${formatUSDT(targetAmount)}
                     </div>
                   </div>
                   <div className="min-w-0">
-                    <div className="text-[10px] sm:text-xs text-gray-500 mb-1">Raised</div>
+                    <div className="text-[10px] sm:text-xs text-muted-foreground mb-1">Raised</div>
                     <div className="text-sm sm:text-lg font-bold text-primary break-words">
                       ${formatUSDT(totalInvested)}
                     </div>
                   </div>
                   <div className="min-w-0">
-                    <div className="text-[10px] sm:text-xs text-gray-500 mb-1">Remaining</div>
-                    <div className="text-sm sm:text-lg font-bold text-green-500 break-words">
+                    <div className="text-[10px] sm:text-xs text-muted-foreground mb-1">Remaining</div>
+                    <div className="text-sm sm:text-lg font-bold text-green-600 dark:text-green-500 break-words">
                       ${formatUSDT(remaining)}
                     </div>
                   </div>
@@ -245,13 +245,13 @@ export const ProjectDetailsModal = ({
 
                 {/* Progress bar */}
                 <div className="space-y-2">
-                  <div className="relative h-3 w-full overflow-hidden rounded-full bg-gray-800">
+                  <div className="relative h-3 w-full overflow-hidden rounded-full bg-muted">
                     <div
                       className="h-full bg-gradient-to-r from-green-500 to-green-400 transition-all rounded-full"
                       style={{ width: `${Math.min((Number(totalInvested) / Number(targetAmount)) * 100, 100)}%` }}
                     />
                   </div>
-                  <div className="text-center text-xs sm:text-sm font-bold text-white break-words">
+                  <div className="text-center text-xs sm:text-sm font-bold text-foreground break-words">
                     {((Number(totalInvested) / Number(targetAmount)) * 100).toFixed(6)}%
                   </div>
                 </div>
@@ -260,10 +260,10 @@ export const ProjectDetailsModal = ({
               {/* Additional Information */}
               <div className="space-y-4 mb-6">
                 {/* Contract Address */}
-                <div className="flex items-start gap-3 p-4 rounded-lg bg-gray-900/30 border border-gray-800">
+                <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/30 border border-border">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-gray-400 flex-shrink-0 mt-0.5"
+                    className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -276,16 +276,16 @@ export const ProjectDetailsModal = ({
                     />
                   </svg>
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs text-gray-500 mb-1">Contract Address</div>
-                    <div className="text-sm font-mono text-gray-300 break-all">{contractAddress}</div>
+                    <div className="text-xs text-muted-foreground mb-1">Contract Address</div>
+                    <div className="text-sm font-mono text-foreground break-all">{contractAddress}</div>
                   </div>
                 </div>
 
                 {/* Created Date */}
-                <div className="flex items-start gap-3 p-4 rounded-lg bg-gray-900/30 border border-gray-800">
+                <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/30 border border-border">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-gray-400 flex-shrink-0 mt-0.5"
+                    className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -298,16 +298,16 @@ export const ProjectDetailsModal = ({
                     />
                   </svg>
                   <div className="flex-1">
-                    <div className="text-xs text-gray-500 mb-1">Created</div>
-                    <div className="text-sm text-gray-300">{formatDate(createdAt)}</div>
+                    <div className="text-xs text-muted-foreground mb-1">Created</div>
+                    <div className="text-sm text-foreground">{formatDate(createdAt)}</div>
                   </div>
                 </div>
 
                 {/* Energy Produced */}
-                <div className="flex items-start gap-3 p-4 rounded-lg bg-gray-900/30 border border-gray-800">
+                <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/30 border border-border">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-gray-400 flex-shrink-0 mt-0.5"
+                    className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -315,16 +315,16 @@ export const ProjectDetailsModal = ({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                   <div className="flex-1">
-                    <div className="text-xs text-gray-500 mb-1">Energy Produced</div>
-                    <div className="text-sm text-gray-300">{energyProduced.toString()} kWh</div>
+                    <div className="text-xs text-muted-foreground mb-1">Energy Produced</div>
+                    <div className="text-sm text-foreground">{energyProduced.toString()} kWh</div>
                   </div>
                 </div>
 
                 {/* Project Owner */}
-                <div className="flex items-start gap-3 p-4 rounded-lg bg-gray-900/30 border border-gray-800">
+                <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/30 border border-border">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-gray-400 flex-shrink-0 mt-0.5"
+                    className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -337,17 +337,17 @@ export const ProjectDetailsModal = ({
                     />
                   </svg>
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs text-gray-500 mb-1">Project Owner</div>
-                    <div className="text-sm font-mono text-gray-300 break-all">{projectOwner}</div>
+                    <div className="text-xs text-muted-foreground mb-1">Project Owner</div>
+                    <div className="text-sm font-mono text-foreground break-all">{projectOwner}</div>
                   </div>
                 </div>
 
                 {/* Funding Deadline */}
                 {fundingDeadline > 0n && (
-                  <div className="flex items-start gap-3 p-4 rounded-lg bg-gray-900/30 border border-gray-800">
+                  <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/30 border border-border">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 text-gray-400 flex-shrink-0 mt-0.5"
+                      className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -360,8 +360,8 @@ export const ProjectDetailsModal = ({
                       />
                     </svg>
                     <div className="flex-1">
-                      <div className="text-xs text-gray-500 mb-1">Funding Deadline</div>
-                      <div className="text-sm text-gray-300">{formatDate(fundingDeadline)}</div>
+                      <div className="text-xs text-muted-foreground mb-1">Funding Deadline</div>
+                      <div className="text-sm text-foreground">{formatDate(fundingDeadline)}</div>
                     </div>
                   </div>
                 )}
