@@ -650,7 +650,7 @@ const OwnerProjectCard = ({
         <div className="mt-4">
           <div className="flex justify-between text-sm mb-2">
             <span className="text-foreground">Funding Progress</span>
-            <span className="font-bold text-foreground">{fundingPercentage.toFixed(1)}%</span>
+            <span className="font-bold text-foreground">{fundingPercentage.toFixed(6)}%</span>
           </div>
           <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
             <div

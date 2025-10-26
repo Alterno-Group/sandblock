@@ -74,7 +74,6 @@ export const ProjectDetailsModal = ({
 
   if (!isOpen) return null;
 
-  const fundingPercentage = targetAmount > 0n ? Number((totalInvested * 100n) / targetAmount) : 0;
   const remaining = targetAmount > totalInvested ? targetAmount - totalInvested : 0n;
   const isFundingComplete = remaining <= 0n;
 
@@ -243,10 +242,12 @@ export const ProjectDetailsModal = ({
                   <div className="relative h-3 w-full overflow-hidden rounded-full bg-gray-800">
                     <div
                       className="h-full bg-gradient-to-r from-green-500 to-green-400 transition-all rounded-full"
-                      style={{ width: `${Math.min(fundingPercentage, 100)}%` }}
+                      style={{ width: `${Math.min((Number(totalInvested) / Number(targetAmount)) * 100, 100)}%` }}
                     />
                   </div>
-                  <div className="text-center text-sm font-bold text-white">{fundingPercentage.toFixed(1)}%</div>
+                  <div className="text-center text-sm font-bold text-white">
+                    {((Number(totalInvested) / Number(targetAmount)) * 100).toFixed(6)}%
+                  </div>
                 </div>
               </div>
 

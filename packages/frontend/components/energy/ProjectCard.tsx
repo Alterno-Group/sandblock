@@ -41,7 +41,6 @@ export const ProjectCard = ({
   onInvest,
 }: ProjectCardProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const fundingPercentage = targetAmount > 0n ? Number((totalInvested * 100n) / targetAmount) : 0;
   const remainingAmount = targetAmount - totalInvested;
   const isFundingComplete = remainingAmount <= 0n;
 
@@ -137,12 +136,14 @@ export const ProjectCard = ({
           <div className="space-y-2 mb-3">
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-400">Funding Progress</span>
-              <span className="font-bold font-mono text-white text-base">{fundingPercentage.toFixed(1)}%</span>
+              <span className="font-bold font-mono text-white text-base">
+                {((Number(totalInvested) / Number(targetAmount)) * 100).toFixed(6)}%
+              </span>
             </div>
             <div className="relative h-2 w-full overflow-hidden rounded-full bg-gray-800">
               <div
                 className="h-full bg-gradient-to-r from-green-500 to-green-400 transition-all rounded-full"
-                style={{ width: `${Math.min(fundingPercentage, 100)}%` }}
+                style={{ width: `${Math.min((Number(totalInvested) / Number(targetAmount)) * 100, 100)}%` }}
               />
             </div>
             <div className="flex items-center justify-between text-sm">

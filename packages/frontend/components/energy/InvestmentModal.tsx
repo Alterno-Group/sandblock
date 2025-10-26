@@ -333,7 +333,7 @@ export const InvestmentModal = ({ projectId, isOpen, onClose }: InvestmentModalP
                 />
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground text-center mt-1.5">
-                {((Number(totalInvested) / Number(targetAmount)) * 100).toFixed(1)}% funded
+                {((Number(totalInvested) / Number(targetAmount)) * 100).toFixed(6)}% funded
               </p>
             </div>
           </div>
@@ -388,7 +388,13 @@ export const InvestmentModal = ({ projectId, isOpen, onClose }: InvestmentModalP
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-xs sm:text-sm font-medium text-foreground">Investment Amount (USDT)</label>
-              <span className="text-xs text-muted-foreground">Max: ${formatUSDT(remainingAmount)}</span>
+              <button
+                onClick={() => setInvestAmount(formatUSDT(remainingAmount))}
+                className="text-xs text-primary hover:underline font-medium"
+                type="button"
+              >
+                Max: ${formatUSDT(remainingAmount)}
+              </button>
             </div>
             <input
               type="number"
@@ -398,10 +404,40 @@ export const InvestmentModal = ({ projectId, isOpen, onClose }: InvestmentModalP
               onChange={e => setInvestAmount(e.target.value)}
               min="0"
               step="0.01"
+              max={formatUSDT(remainingAmount)}
             />
 
+            {/* Amount Validation Warning */}
+            {investAmount && numInvestAmount > Number(formatUSDT(remainingAmount)) && (
+              <div className="mt-3 p-3 sm:p-4 bg-orange-500/10 border border-orange-500/20 rounded-lg">
+                <div className="flex items-start gap-2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                    />
+                  </svg>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-orange-500">Amount Exceeds Remaining Target</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Your investment amount (${numInvestAmount.toFixed(2)}) exceeds the remaining funding needed ($
+                      {formatUSDT(remainingAmount)}). Maximum allowed: ${formatUSDT(remainingAmount)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Approval Info */}
-            {needsApproval && investAmount && numInvestAmount > 0 && (
+            {needsApproval && investAmount && numInvestAmount > 0 && numInvestAmount <= Number(formatUSDT(remainingAmount)) && (
               <div className="mt-3 p-3 sm:p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
                 <div className="flex items-start gap-2">
                   <svg
@@ -421,8 +457,8 @@ export const InvestmentModal = ({ projectId, isOpen, onClose }: InvestmentModalP
                   <div className="flex-1">
                     <p className="text-sm font-medium text-blue-500">Token Approval Required</p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      You&apos;ll need to approve the SandBlock contract to spend your USDT tokens. This is a one-time
-                      transaction that will be followed by the investment transaction.
+                      You&apos;ll need to approve the SandBlock contract to spend your USDT tokens. This is a
+                      one-time transaction that will be followed by the investment transaction.
                     </p>
                   </div>
                 </div>
@@ -518,11 +554,20 @@ export const InvestmentModal = ({ projectId, isOpen, onClose }: InvestmentModalP
           </button>
           <button
             onClick={handleInvest}
-            disabled={!canInvest || !investAmount || isInvesting || isApproving || numInvestAmount <= 0}
+            disabled={
+              !canInvest ||
+              !investAmount ||
+              isInvesting ||
+              isApproving ||
+              numInvestAmount <= 0 ||
+              numInvestAmount > Number(formatUSDT(remainingAmount))
+            }
             className="inline-flex items-center justify-center rounded-md text-xs sm:text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 sm:h-10 px-3 sm:px-4 py-2 flex-1"
           >
             {!canInvest
               ? "Cannot Invest"
+              : numInvestAmount > Number(formatUSDT(remainingAmount))
+              ? "Amount Too High"
               : isApproving
               ? "Approving USDT..."
               : isInvesting
