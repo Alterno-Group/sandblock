@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 /**
- * Site footer with links to Privacy Policy, Terms of Service, and copyright
+ * Site footer with links to About Us, Privacy Policy, Terms of Service, and copyright
  */
 export const Footer = () => {
   return (
@@ -9,7 +9,14 @@ export const Footer = () => {
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
           {/* Links */}
-          <div className="flex items-center gap-4 sm:gap-6 text-sm">
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm">
+            <Link
+              href="/about-us"
+              className="text-muted-foreground hover:text-foreground transition-colors duration-200"
+            >
+              About Us
+            </Link>
+            <span className="text-muted-foreground">|</span>
             <Link
               href="/privacy-policy"
               className="text-muted-foreground hover:text-foreground transition-colors duration-200"
