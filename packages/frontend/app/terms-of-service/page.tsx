@@ -129,7 +129,10 @@ const TermsOfServicePage: NextPage = () => {
 
         <h2 className="text-2xl font-bold mt-8 mb-4">13. Contact</h2>
 
-        <p className="text-foreground leading-relaxed mb-6">Support or legal notices: [Contact information to be added]</p>
+        <p className="text-foreground leading-relaxed mb-6">
+          Support or legal notices:&nbsp;
+          <a href="mailto:netzero@alterno.net">netzero@alterno.net</a>
+        </p>
       </div>
     </div>
   );

@@ -86,4 +86,4 @@ These Terms are governed by the laws of \[Choose jurisdiction: e.g., Vietnam / S
 
 ## **13\. Contact**
 
-Support or legal notices: 
+Support or legal notices: netzero@alterno.net
