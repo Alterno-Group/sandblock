@@ -33,25 +33,25 @@ export const OnRampModal = ({ isOpen, onClose, targetAmount }: OnRampModalProps)
     return (Number(amount) / 1e6).toFixed(2);
   };
 
-  const amountUSD = targetAmount ? parseFloat(formatUSDT(targetAmount)) : 100;
-
   // Environment variables for API keys
   const MOONPAY_KEY = process.env.NEXT_PUBLIC_MOONPAY_API_KEY || "";
+  const MOONPAY_URL = process.env.NEXT_PUBLIC_MOONPAY_API_URL || "https://buy.moonpay.com";
   const TRANSAK_KEY = process.env.NEXT_PUBLIC_TRANSAK_API_KEY || "";
+  const TRANSAK_URL = process.env.NEXT_PUBLIC_TRANSAK_API_URL || "https://global.transak.com";
+  const isTestMode = process.env.NEXT_PUBLIC_TEST_MODE || false;
 
   const openMoonPay = () => {
     if (!address) return;
 
     const params = new URLSearchParams({
       apiKey: MOONPAY_KEY,
-      currencyCode: "USDT",
+      currencyCode: "usdt",
       walletAddress: address,
       baseCurrencyCode: "usd",
-      baseCurrencyAmount: amountUSD.toString(),
       colorCode: "3b82f6",
     });
 
-    window.open(`https://buy.moonpay.com?${params.toString()}`, "MoonPay", "width=500,height=700");
+    window.open(`${MOONPAY_URL}?${params.toString()}`, "MoonPay", "width=500,height=700");
   };
 
   const openTransak = () => {
@@ -59,27 +59,17 @@ export const OnRampModal = ({ isOpen, onClose, targetAmount }: OnRampModalProps)
 
     const params = new URLSearchParams({
       apiKey: TRANSAK_KEY,
+      environment: isTestMode ? "staging" : "production",
       defaultCryptoCurrency: "USDT",
       walletAddress: address,
       fiatCurrency: "USD",
-      fiatAmount: amountUSD.toString(),
       network: "ethereum",
       disableWalletAddressForm: "true",
+      networkCode: "",
+      countryCode: "VN",
     });
 
-    window.open(`https://global.transak.com/?${params.toString()}`, "Transak", "width=500,height=700");
-  };
-
-  const openRamp = () => {
-    if (!address) return;
-
-    window.open(
-      `https://buy.ramp.network/?hostApiKey=${
-        process.env.NEXT_PUBLIC_RAMP_API_KEY || ""
-      }&userAddress=${address}&swapAsset=USDT&fiatValue=${amountUSD}&fiatCurrency=USD`,
-      "Ramp",
-      "width=500,height=700",
-    );
+    window.open(`${TRANSAK_URL}?${params.toString()}`, "Transak", "width=500,height=700");
   };
 
   if (!isOpen || !mounted) return null;
@@ -155,21 +145,6 @@ export const OnRampModal = ({ isOpen, onClose, targetAmount }: OnRampModalProps)
               <div className="text-primary">→</div>
             </button>
 
-            {/* Ramp Option */}
-            <button
-              onClick={openRamp}
-              disabled={!address}
-              className="w-full flex items-center justify-between p-4 border border-border rounded-lg hover:bg-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">🚀</div>
-                <div className="text-left">
-                  <div className="font-semibold">Ramp Network</div>
-                  <div className="text-xs text-muted-foreground">Fast KYC • Europe-friendly</div>
-                </div>
-              </div>
-              <div className="text-primary">→</div>
-            </button>
           </div>
 
           {/* Info */}
