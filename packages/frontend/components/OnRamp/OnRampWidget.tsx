@@ -4,8 +4,6 @@ import { useAccount } from "wagmi";
 
 interface OnRampWidgetProps {
   amount?: number; // Amount in fiat currency
-  onClose?: () => void;
-  onSuccess?: (data: any) => void;
   fiatType?: "1" | "2" | "3" | "4" | "5" | "6"; // 1=INR, 2=TRY, 3=AED, 4=MXN, 5=VND, 6=NGN
   paymentMethod?: "1" | "2"; // 1 = instant, 2 = bank transfer
   phoneNumber?: string;
@@ -26,8 +24,6 @@ interface OnRampWidgetProps {
  */
 export const OnRampWidget = ({
   amount,
-  onClose,
-  onSuccess,
   fiatType = "1", // Default to INR
   paymentMethod,
   phoneNumber,

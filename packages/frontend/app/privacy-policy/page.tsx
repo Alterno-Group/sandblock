@@ -11,8 +11,8 @@ const PrivacyPolicyPage: NextPage = () => {
 
         <p className="text-foreground leading-relaxed mb-6">
           SANDBLŌCK ("SANDBLŌCK", "we", "us") provides a web application that allows users to view project information
-          and interact with blockchain-based smart contracts. This Privacy Policy explains how we collect, use, and share
-          information when you use our website and services (the "Service").
+          and interact with blockchain-based smart contracts. This Privacy Policy explains how we collect, use, and
+          share information when you use our website and services (the "Service").
         </p>
 
         <h2 className="text-2xl font-bold mt-8 mb-4">1. Information We Collect</h2>
@@ -28,8 +28,13 @@ const PrivacyPolicyPage: NextPage = () => {
 
         <h3 className="text-xl font-semibold mt-6 mb-3">B) Blockchain information</h3>
         <ul className="list-disc list-inside mb-6 space-y-2 text-foreground">
-          <li>Public blockchain addresses and transaction data you submit or generate when interacting with smart contracts.</li>
-          <li className="text-muted-foreground italic">Note: Blockchain data is public and may be accessible to anyone.</li>
+          <li>
+            Public blockchain addresses and transaction data you submit or generate when interacting with smart
+            contracts.
+          </li>
+          <li className="text-muted-foreground italic">
+            Note: Blockchain data is public and may be accessible to anyone.
+          </li>
         </ul>
 
         <h3 className="text-xl font-semibold mt-6 mb-3">C) Technical and usage information</h3>
@@ -68,20 +73,21 @@ const PrivacyPolicyPage: NextPage = () => {
             <strong>Service providers</strong> (e.g., hosting, analytics) strictly for operating the Service
           </li>
           <li>
-            <strong>Payment/on-ramp providers</strong> you choose to use, to facilitate transactions (subject to their own
-            policies)
+            <strong>Payment/on-ramp providers</strong> you choose to use, to facilitate transactions (subject to their
+            own policies)
           </li>
           <li>
-            <strong>Legal and safety:</strong> if required by law, regulation, or valid legal process, or to protect rights,
-            safety, and security
+            <strong>Legal and safety:</strong> if required by law, regulation, or valid legal process, or to protect
+            rights, safety, and security
           </li>
         </ul>
 
         <h2 className="text-2xl font-bold mt-8 mb-4">4. Data Retention</h2>
 
         <p className="text-foreground leading-relaxed mb-6">
-          We retain information only for as long as necessary for the purposes described above, unless a longer retention
-          period is required by law or needed for legitimate business purposes (e.g., security, dispute resolution).
+          We retain information only for as long as necessary for the purposes described above, unless a longer
+          retention period is required by law or needed for legitimate business purposes (e.g., security, dispute
+          resolution).
         </p>
 
         <h2 className="text-2xl font-bold mt-8 mb-4">5. Security</h2>
@@ -94,22 +100,22 @@ const PrivacyPolicyPage: NextPage = () => {
         <h2 className="text-2xl font-bold mt-8 mb-4">6. Your Choices</h2>
 
         <p className="text-foreground leading-relaxed mb-6">
-          Depending on your jurisdiction, you may have rights to access, correct, or delete certain information. Note that
-          we cannot delete or modify data recorded on a public blockchain.
+          Depending on your jurisdiction, you may have rights to access, correct, or delete certain information. Note
+          that we cannot delete or modify data recorded on a public blockchain.
         </p>
 
         <h2 className="text-2xl font-bold mt-8 mb-4">7. Third-Party Services</h2>
 
         <p className="text-foreground leading-relaxed mb-6">
-          The Service may link to third-party websites or services (including on-ramp providers). Their privacy practices
-          are governed by their own policies, not ours.
+          The Service may link to third-party websites or services (including on-ramp providers). Their privacy
+          practices are governed by their own policies, not ours.
         </p>
 
         <h2 className="text-2xl font-bold mt-8 mb-4">8. International Users</h2>
 
         <p className="text-foreground leading-relaxed mb-6">
-          Your information may be processed in countries where we or our service providers operate. We take steps to protect
-          data consistent with this Policy.
+          Your information may be processed in countries where we or our service providers operate. We take steps to
+          protect data consistent with this Policy.
         </p>
       </div>
     </div>

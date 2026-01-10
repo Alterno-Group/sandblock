@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { createPortal } from "react-dom";
 import { useAccount } from "wagmi";
 import { XMarkIcon } from "@heroicons/react/24/outline";
@@ -73,7 +73,7 @@ export const OnRampModal = ({
 
     const params = new URLSearchParams({
       apiKey: MOONPAY_KEY,
-      currencyCode: "usdt",
+      currencyCode: isTestMode ? "eth" : "usdt",
       walletAddress: address,
       baseCurrencyCode: "usd",
       colorCode: "3b82f6",
@@ -238,7 +238,6 @@ export const OnRampModal = ({
               </div>
               <div className="text-primary">→</div>
             </button>
-
           </div>
 
           {/* Info */}

@@ -18,9 +18,9 @@ const AboutUsPage: NextPage = () => {
         <div className="space-y-4">
           <h2 className="text-2xl md:text-3xl font-bold text-foreground">Our Mission</h2>
           <p className="text-base md:text-lg leading-relaxed text-foreground">
-            SANDBLŌCK is a decentralized application (dApp) designed to revolutionize renewable energy financing. We enable
-            individuals and institutions to invest directly in tokenized renewable energy projects using cryptocurrency,
-            creating a transparent, efficient, and accessible path to sustainable energy investment.
+            SANDBLŌCK is a decentralized application (dApp) designed to revolutionize renewable energy financing. We
+            enable individuals and institutions to invest directly in tokenized renewable energy projects using
+            cryptocurrency, creating a transparent, efficient, and accessible path to sustainable energy investment.
           </p>
           <p className="text-base md:text-lg leading-relaxed text-foreground">
             By leveraging blockchain technology and smart contracts, we remove intermediaries, reduce costs, and provide
@@ -165,8 +165,8 @@ const AboutUsPage: NextPage = () => {
               <div className="bg-card rounded-lg p-4 border border-card-border">
                 <p className="font-semibold text-foreground mb-2">Annual Principal Payback</p>
                 <p className="text-sm text-muted-foreground">
-                  Starting 2 years after funding completion, receive 20% of your original investment annually until fully
-                  repaid over 5 years.
+                  Starting 2 years after funding completion, receive 20% of your original investment annually until
+                  fully repaid over 5 years.
                 </p>
               </div>
             </div>
@@ -175,9 +175,7 @@ const AboutUsPage: NextPage = () => {
           {/* Technology */}
           <div className="space-y-4">
             <h3 className="text-xl font-semibold text-foreground">Technology Stack</h3>
-            <p className="text-muted-foreground mb-4">
-              Built with cutting-edge web3 and blockchain technologies:
-            </p>
+            <p className="text-muted-foreground mb-4">Built with cutting-edge web3 and blockchain technologies:</p>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               <div className="bg-card rounded-lg p-3 border border-card-border text-center">
                 <p className="text-sm font-semibold text-foreground">Scaffold-ETH 2</p>
@@ -214,12 +212,7 @@ const AboutUsPage: NextPage = () => {
             <div className="flex gap-4">
               <div className="flex-shrink-0">
                 <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-primary/10">
-                  <svg
-                    className="h-6 w-6 text-primary"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
+                  <svg className="h-6 w-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -240,18 +233,8 @@ const AboutUsPage: NextPage = () => {
             <div className="flex gap-4">
               <div className="flex-shrink-0">
                 <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-primary/10">
-                  <svg
-                    className="h-6 w-6 text-primary"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13 10V3L4 14h7v7l9-11h-7z"
-                    />
+                  <svg className="h-6 w-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 </div>
               </div>
@@ -266,12 +249,7 @@ const AboutUsPage: NextPage = () => {
             <div className="flex gap-4">
               <div className="flex-shrink-0">
                 <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-primary/10">
-                  <svg
-                    className="h-6 w-6 text-primary"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
+                  <svg className="h-6 w-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -292,12 +270,7 @@ const AboutUsPage: NextPage = () => {
             <div className="flex gap-4">
               <div className="flex-shrink-0">
                 <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-primary/10">
-                  <svg
-                    className="h-6 w-6 text-primary"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
+                  <svg className="h-6 w-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -318,12 +291,7 @@ const AboutUsPage: NextPage = () => {
             <div className="flex gap-4">
               <div className="flex-shrink-0">
                 <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-primary/10">
-                  <svg
-                    className="h-6 w-6 text-primary"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
+                  <svg className="h-6 w-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -344,18 +312,8 @@ const AboutUsPage: NextPage = () => {
             <div className="flex gap-4">
               <div className="flex-shrink-0">
                 <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-primary/10">
-                  <svg
-                    className="h-6 w-6 text-primary"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13 10V3L4 14h7v7l9-11h-7z"
-                    />
+                  <svg className="h-6 w-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 </div>
               </div>

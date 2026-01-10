@@ -18,8 +18,9 @@ const TermsOfServicePage: NextPage = () => {
         <h2 className="text-2xl font-bold mt-8 mb-4">1. Service Overview</h2>
 
         <p className="text-foreground leading-relaxed mb-6">
-          SANDBLŌCK provides a software interface that allows users to view project-related information and interact with
-          blockchain smart contracts. The Service may include beta or experimental features and may change without notice.
+          SANDBLŌCK provides a software interface that allows users to view project-related information and interact
+          with blockchain smart contracts. The Service may include beta or experimental features and may change without
+          notice.
         </p>
 
         <h2 className="text-2xl font-bold mt-8 mb-4">2. No Advice; No Guarantees</h2>
@@ -34,8 +35,8 @@ const TermsOfServicePage: NextPage = () => {
         </p>
 
         <p className="text-foreground leading-relaxed mb-6">
-          Nothing in the Service constitutes an offer, solicitation, or recommendation to buy or sell any asset, product,
-          or security.
+          Nothing in the Service constitutes an offer, solicitation, or recommendation to buy or sell any asset,
+          product, or security.
         </p>
 
         <h2 className="text-2xl font-bold mt-8 mb-4">3. Eligibility and Compliance</h2>
@@ -76,9 +77,9 @@ const TermsOfServicePage: NextPage = () => {
         <h2 className="text-2xl font-bold mt-8 mb-4">6. Third-Party Services (On-Ramp / Payment Providers)</h2>
 
         <p className="text-foreground leading-relaxed mb-6">
-          If you use third-party services (including on-ramp providers), those services are provided by independent parties
-          under their own terms and policies. SANDBLŌCK is not responsible for third-party services, including their
-          availability, pricing, fees, or performance.
+          If you use third-party services (including on-ramp providers), those services are provided by independent
+          parties under their own terms and policies. SANDBLŌCK is not responsible for third-party services, including
+          their availability, pricing, fees, or performance.
         </p>
 
         <h2 className="text-2xl font-bold mt-8 mb-4">7. Prohibited Use</h2>
@@ -102,23 +103,24 @@ const TermsOfServicePage: NextPage = () => {
         <h2 className="text-2xl font-bold mt-8 mb-4">9. Disclaimers</h2>
 
         <p className="text-foreground leading-relaxed mb-6">
-          THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE." WE DISCLAIM ALL WARRANTIES TO THE MAXIMUM EXTENT PERMITTED BY
-          LAW, INCLUDING IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+          THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE." WE DISCLAIM ALL WARRANTIES TO THE MAXIMUM EXTENT PERMITTED
+          BY LAW, INCLUDING IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND
+          NON-INFRINGEMENT.
         </p>
 
         <h2 className="text-2xl font-bold mt-8 mb-4">10. Limitation of Liability</h2>
 
         <p className="text-foreground leading-relaxed mb-6">
           TO THE MAXIMUM EXTENT PERMITTED BY LAW, SANDBLŌCK SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL,
-          CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF FUNDS, DATA, PROFITS, OR REVENUE, ARISING OUT OF OR RELATED TO
-          YOUR USE OF THE SERVICE.
+          CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF FUNDS, DATA, PROFITS, OR REVENUE, ARISING OUT OF OR RELATED
+          TO YOUR USE OF THE SERVICE.
         </p>
 
         <h2 className="text-2xl font-bold mt-8 mb-4">11. Changes to the Service and Terms</h2>
 
         <p className="text-foreground leading-relaxed mb-6">
-          We may update the Service or these Terms at any time. Continued use of the Service after updates means you accept
-          the revised Terms.
+          We may update the Service or these Terms at any time. Continued use of the Service after updates means you
+          accept the revised Terms.
         </p>
 
         <h2 className="text-2xl font-bold mt-8 mb-4">12. Governing Law</h2>

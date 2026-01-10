@@ -36,9 +36,7 @@ export const Footer = () => {
           <div className="sm:hidden border-t border-card-border w-12"></div>
 
           {/* Copyright */}
-          <p className="text-xs sm:text-sm text-muted-foreground text-center">
-            © 2025 SANDBLŌCK. All rights reserved.
-          </p>
+          <p className="text-xs sm:text-sm text-muted-foreground text-center">© 2025 SANDBLŌCK. All rights reserved.</p>
         </div>
       </div>
     </footer>
