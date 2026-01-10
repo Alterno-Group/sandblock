@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useAccount } from "wagmi";
@@ -9,13 +10,38 @@ interface OnRampModalProps {
   isOpen: boolean;
   onClose: () => void;
   targetAmount?: bigint; // Amount needed in USDT (6 decimals)
+  // Additional OnRamp options from documentation
+  redirectUrl?: string; // URL for post-transaction redirection
+  phoneNumber?: string; // User's phone number
+  paymentMethod?: "1" | "2"; // 1 = instant (UPI), 2 = bank transfer
+  fiatType?: "1" | "2" | "3" | "4" | "5" | "6"; // 1=INR, 2=TRY, 3=AED, 4=MXN, 5=VND, 6=NGN
+  fiatAmount?: number; // Amount in fiat currency
+  merchantRecognitionId?: string; // Custom identifier for tracking
+  language?: "en" | "vi" | "es" | "tr" | "pt" | "fil" | "th" | "sw" | "id"; // Language preference
+  coinAmount?: number; // Amount in native cryptocurrency
+  coinCode?: string; // Cryptocurrency code for OnRamp (usdt, usdc, eth, etc.)
+  network?: string; // Blockchain network for OnRamp (erc20, matic20, etc.)
 }
 
 /**
  * On-Ramp Modal Component
  * Provides multiple options for users to buy USDT
  */
-export const OnRampModal = ({ isOpen, onClose, targetAmount }: OnRampModalProps) => {
+export const OnRampModal = ({
+  isOpen,
+  onClose,
+  targetAmount,
+  redirectUrl,
+  phoneNumber,
+  paymentMethod,
+  fiatType,
+  fiatAmount,
+  merchantRecognitionId,
+  language = "en",
+  coinAmount,
+  coinCode = "usdt",
+  network = "erc20",
+}: OnRampModalProps) => {
   const { address } = useAccount();
   const [mounted, setMounted] = useState(false);
 
@@ -38,6 +64,8 @@ export const OnRampModal = ({ isOpen, onClose, targetAmount }: OnRampModalProps)
   const MOONPAY_URL = process.env.NEXT_PUBLIC_MOONPAY_API_URL || "https://buy.moonpay.com";
   const TRANSAK_KEY = process.env.NEXT_PUBLIC_TRANSAK_API_KEY || "";
   const TRANSAK_URL = process.env.NEXT_PUBLIC_TRANSAK_API_URL || "https://global.transak.com";
+  const ONRAMP_APP_ID = process.env.NEXT_PUBLIC_ONRAMP_APP_ID || "1";
+  const ONRAMP_URL = process.env.NEXT_PUBLIC_ONRAMP_URL || "https://onramp.money/main/buy";
   const isTestMode = process.env.NEXT_PUBLIC_TEST_MODE || false;
 
   const openMoonPay = () => {
@@ -49,6 +77,13 @@ export const OnRampModal = ({ isOpen, onClose, targetAmount }: OnRampModalProps)
       walletAddress: address,
       baseCurrencyCode: "usd",
       colorCode: "3b82f6",
+      ...(targetAmount && { baseCurrencyAmount: (Number(targetAmount) / 1e6).toString() }),
+      ...(fiatAmount && { baseCurrencyAmount: fiatAmount.toString() }),
+      ...(coinAmount && { cryptoAmount: coinAmount.toString() }),
+      ...(redirectUrl && { redirectUrl }),
+      ...(phoneNumber && { phoneNumber: encodeURIComponent(phoneNumber) }),
+      ...(merchantRecognitionId && { merchantRecognitionId }),
+      ...(language && language !== "en" && { lang: language }),
     });
 
     window.open(`${MOONPAY_URL}?${params.toString()}`, "MoonPay", "width=500,height=700");
@@ -57,19 +92,56 @@ export const OnRampModal = ({ isOpen, onClose, targetAmount }: OnRampModalProps)
   const openTransak = () => {
     if (!address) return;
 
+    // Map fiat type codes to currency codes for Transak
+    const fiatTypeMap: Record<string, string> = {
+      "1": "INR",
+      "2": "TRY",
+      "3": "AED",
+      "4": "MXN",
+      "5": "VND",
+      "6": "NGN",
+    };
+
     const params = new URLSearchParams({
       apiKey: TRANSAK_KEY,
       environment: isTestMode ? "staging" : "production",
       defaultCryptoCurrency: "USDT",
       walletAddress: address,
-      fiatCurrency: "USD",
+      fiatCurrency: fiatType ? fiatTypeMap[fiatType] || "USD" : "USD",
       network: "ethereum",
       disableWalletAddressForm: "true",
-      networkCode: "",
       countryCode: "VN",
+      ...(targetAmount && { fiatAmount: (Number(targetAmount) / 1e6).toString() }),
+      ...(fiatAmount && { fiatAmount: fiatAmount.toString() }),
+      ...(coinAmount && { cryptoAmount: coinAmount.toString() }),
+      ...(redirectUrl && { redirectUrl }),
+      ...(phoneNumber && { phoneNumber: encodeURIComponent(phoneNumber) }),
+      ...(merchantRecognitionId && { merchantRecognitionId }),
+      ...(language && language !== "en" && { lang: language }),
+      ...(paymentMethod && { paymentMethod }),
     });
 
     window.open(`${TRANSAK_URL}?${params.toString()}`, "Transak", "width=500,height=700");
+  };
+
+  const openOnRamp = () => {
+    if (!address) return;
+
+    const params = new URLSearchParams({
+      appId: ONRAMP_APP_ID,
+      walletAddress: address,
+      coinCode: coinCode,
+      network: network,
+      ...(targetAmount && { fiatAmount: (Number(targetAmount) / 1e6).toString() }),
+      ...(fiatAmount && { fiatAmount: fiatAmount.toString() }),
+      ...(fiatType && { fiatType }),
+      ...(phoneNumber && { phoneNumber: encodeURIComponent(phoneNumber) }),
+      ...(redirectUrl && { redirectUrl }),
+      ...(language && language !== "en" && { lang: language }),
+      ...(paymentMethod && { paymentMethod }),
+    });
+
+    window.open(`${ONRAMP_URL}/?${params.toString()}`, "OnRamp", "width=500,height=700");
   };
 
   if (!isOpen || !mounted) return null;
@@ -112,6 +184,28 @@ export const OnRampModal = ({ isOpen, onClose, targetAmount }: OnRampModalProps)
             <p className="text-sm text-muted-foreground">
               Choose a payment provider to buy USDT with your credit card or bank account:
             </p>
+
+            {/* OnRamp Option */}
+            <button
+              onClick={openOnRamp}
+              disabled={!address || !ONRAMP_APP_ID}
+              className="w-full flex items-center justify-between p-4 border border-border rounded-lg hover:bg-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <div className="flex items-center gap-3">
+                <Image
+                  src="https://play-lh.googleusercontent.com/uJBE811pIPaLL__Ej2h8_B0M1ytmCjY2CSiIVruVvbxBcm7Yb_TRMUPZGGHl8M0fE1a6"
+                  alt="OnRamp"
+                  width={48}
+                  height={48}
+                  className="rounded-full object-cover"
+                />
+                <div className="text-left">
+                  <div className="font-semibold">OnRamp</div>
+                  <div className="text-xs text-muted-foreground">Simple & Direct • 100+ countries</div>
+                </div>
+              </div>
+              <div className="text-primary">→</div>
+            </button>
 
             {/* MoonPay Option */}
             <button
@@ -159,7 +253,7 @@ export const OnRampModal = ({ isOpen, onClose, targetAmount }: OnRampModalProps)
           </div>
 
           {/* No API Keys Warning */}
-          {!MOONPAY_KEY && !TRANSAK_KEY && (
+          {!MOONPAY_KEY && !TRANSAK_KEY && !ONRAMP_APP_ID && (
             <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4">
               <p className="text-sm text-red-600 dark:text-red-400">
                 ⚠️ On-ramp providers not configured. Please add API keys to environment variables.
